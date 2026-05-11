@@ -47,8 +47,7 @@
   }
 
   function exitGame() {
-    if (!window.confirm('Exit the game? Your discoveries are saved automatically.')) return;
-    // 1. Capacitor / wrapped app — close the native app
+    // Wrapped Capacitor app — close the native app.
     try {
       const cap = window.Capacitor;
       if (cap && cap.Plugins && cap.Plugins.App && typeof cap.Plugins.App.exitApp === 'function') {
@@ -56,14 +55,8 @@
         return;
       }
     } catch (e) { /* fall through */ }
-
-    // 2. Browser — try to close the tab (only works for script-opened windows)
+    // Browser — close the tab (works for script-opened windows / PWAs).
     try { window.close(); } catch (e) { /* ignore */ }
-
-    // 3. Fallback — replace the screen with a 'curtain close' so the player
-    //    can manually close the tab.
-    const overlay = document.getElementById('exit-overlay');
-    if (overlay) overlay.classList.remove('hidden');
   }
 
   document.addEventListener('contextmenu', e => e.preventDefault());
