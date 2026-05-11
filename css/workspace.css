@@ -150,6 +150,25 @@
   100% { opacity: 0; transform: scale(1.4); filter: blur(3px); }
 }
 
+.drag-ghost {
+  position: fixed !important;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0.95;
+  cursor: grabbing;
+  box-shadow: 0 14px 30px rgba(0,0,0,0.7), var(--glow);
+  border-color: var(--gold) !important;
+  transform: scale(1.06);
+  transition: transform 0.12s ease, opacity 0.18s ease;
+}
+.drag-ghost.over-workspace {
+  transform: scale(1);
+}
+.drag-ghost-cancel {
+  opacity: 0;
+  transform: scale(0.7);
+}
+
 .spark {
   position: absolute;
   width: 6px;

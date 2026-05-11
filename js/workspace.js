@@ -107,37 +107,82 @@
   }
 
   // --- Spawning tiles from the library --------------------------------------
-  // A tile is only spawned after the pointer has moved past DRAG_THRESHOLD
-  // from its starting point. A simple click/tap on a library entry does
-  // nothing — the player must actually drag onto the workspace.
-  const DRAG_THRESHOLD = 10;
+  // On pointerdown, a 'ghost' tile is spawned in a fixed-position layer
+  // and follows the pointer smoothly anywhere on screen. On release:
+  //   - over the workspace → ghost is committed as a real tile and
+  //     immediately checked for a combination target.
+  //   - elsewhere (still in library, off-screen, etc.) → ghost is removed
+  //     with a quick fade, no tile placed.
+  // A tap with no movement is treated as "release in library" → no commit.
 
   function attachLibraryDragSource(node, elementId) {
     node.addEventListener('pointerdown', (e) => {
       if (e.button !== undefined && e.button !== 0) return;
       e.preventDefault();
-      const startX = e.clientX;
-      const startY = e.clientY;
       const pointerId = e.pointerId;
+      const el = State.state.byId.get(elementId);
+      if (!el) return;
+
+      // Build a ghost tile in document.body (position:fixed) so it can
+      // follow the pointer anywhere, including over the library.
+      const ghost = document.createElement('div');
+      ghost.className = 'tile drag-ghost';
+      ghost.appendChild(Icons.buildIcon(el));
+      const nm = document.createElement('div');
+      nm.className = 'name';
+      nm.textContent = el.name;
+      ghost.appendChild(nm);
+      document.body.appendChild(ghost);
+      positionGhost(e.clientX, e.clientY);
+      let moved = false;
+
+      function positionGhost(clientX, clientY) {
+        ghost.style.left = (clientX - TILE_W / 2) + 'px';
+        ghost.style.top  = (clientY - TILE_H / 2) + 'px';
+      }
 
       function onMove(ev) {
         if (ev.pointerId !== pointerId) return;
-        const dx = ev.clientX - startX;
-        const dy = ev.clientY - startY;
-        if (Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
-        // Threshold crossed — hand off to the workspace drag system.
-        cleanup();
-        const rect = workspaceEl.getBoundingClientRect();
-        const x = ev.clientX - rect.left - TILE_W / 2;
-        const y = ev.clientY - rect.top - TILE_H / 2;
-        const tile = spawnTile(elementId, x, y);
-        if (!tile) return;
-        beginDrag(tile, ev, TILE_W / 2, TILE_H / 2);
+        moved = true;
+        positionGhost(ev.clientX, ev.clientY);
+        // Highlight any workspace tile we're hovering, for combine feedback.
+        const wsRect = workspaceEl.getBoundingClientRect();
+        const localX = ev.clientX - wsRect.left - TILE_W / 2;
+        const localY = ev.clientY - wsRect.top  - TILE_H / 2;
+        const overWorkspace = ev.clientX >= wsRect.left && ev.clientX <= wsRect.right
+                           && ev.clientY >= wsRect.top  && ev.clientY <= wsRect.bottom;
+        ghost.classList.toggle('over-workspace', overWorkspace);
+        const phantom = { x: localX, y: localY };
+        const target = overWorkspace ? findOverlap(phantom) : null;
+        for (const t of tiles) t.node.classList.toggle('overlapping', t === target);
       }
 
       function onEnd(ev) {
         if (ev.pointerId !== pointerId) return;
         cleanup();
+        const wsRect = workspaceEl.getBoundingClientRect();
+        const overWorkspace = ev.clientX >= wsRect.left && ev.clientX <= wsRect.right
+                           && ev.clientY >= wsRect.top  && ev.clientY <= wsRect.bottom;
+        for (const t of tiles) t.node.classList.remove('overlapping');
+
+        if (!moved || !overWorkspace) {
+          // Cancel: gentle fade-out of the ghost.
+          ghost.classList.add('drag-ghost-cancel');
+          setTimeout(() => ghost.remove(), 200);
+          return;
+        }
+
+        // Commit: replace the ghost with a real workspace tile at the
+        // workspace-local coordinates.
+        const x = ev.clientX - wsRect.left - TILE_W / 2;
+        const y = ev.clientY - wsRect.top  - TILE_H / 2;
+        const tile = spawnTile(elementId, x, y);
+        ghost.remove();
+        if (!tile) return;
+
+        // Check for immediate combination if released onto another tile.
+        const target = findOverlap(tile);
+        if (target) tryCombine(tile, target);
       }
 
       function cleanup() {
