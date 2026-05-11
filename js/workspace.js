@@ -19,11 +19,8 @@
     bannerEl    = document.getElementById('discovery-banner');
 
     document.getElementById('btn-clear').addEventListener('click', clear);
-    document.getElementById('btn-reset').addEventListener('click', () => {
-      if (!confirm('Reset all discovered elements? You will start over with the four base elements.')) return;
-      clear();
-      State.resetProgress();
-    });
+    document.getElementById('btn-reset').addEventListener('click', openResetModal);
+    initResetModal();
 
     // Catch pointermove/up globally so dragging works even if pointer leaves a tile.
     document.addEventListener('pointermove', onPointerMove);
@@ -37,6 +34,76 @@
   function clear() {
     for (const t of tiles) t.node.remove();
     tiles = [];
+  }
+
+  // --- Reset confirmation modal ---------------------------------------------
+  function openResetModal() {
+    const modal = document.getElementById('reset-modal');
+    if (!modal) return;
+    showResetStage(1);
+    document.getElementById('reset-count').textContent = State.state.discovered.size;
+    modal.classList.remove('hidden');
+  }
+
+  function showResetStage(n) {
+    const modal = document.getElementById('reset-modal');
+    if (!modal) return;
+    for (const s of modal.querySelectorAll('.reset-stage')) {
+      s.classList.toggle('hidden', s.dataset.stage !== String(n));
+    }
+    if (n === 2) armFinalConfirm();
+  }
+
+  function armFinalConfirm() {
+    const modal = document.getElementById('reset-modal');
+    const btn = modal.querySelector('.reset-confirm');
+    btn.disabled = true;
+    let secondsLeft = 2;
+    const baseLabel = 'Yes, reset everything';
+    btn.textContent = baseLabel + ' (' + secondsLeft + ')';
+    const interval = setInterval(() => {
+      secondsLeft--;
+      if (secondsLeft > 0) {
+        btn.textContent = baseLabel + ' (' + secondsLeft + ')';
+      } else {
+        clearInterval(interval);
+        btn.disabled = false;
+        btn.textContent = baseLabel;
+      }
+    }, 1000);
+    // Store interval so re-arming clears it
+    btn._countdown = interval;
+  }
+
+  function initResetModal() {
+    const modal = document.getElementById('reset-modal');
+    if (!modal) return;
+
+    modal.addEventListener('click', (e) => {
+      if (e.target.dataset.close !== undefined) closeResetModal();
+    });
+
+    modal.querySelector('.reset-next').addEventListener('click', () => showResetStage(2));
+
+    modal.querySelector('.reset-confirm').addEventListener('click', (e) => {
+      if (e.currentTarget.disabled) return;
+      closeResetModal();
+      clear();
+      State.resetProgress();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeResetModal();
+    });
+  }
+
+  function closeResetModal() {
+    const modal = document.getElementById('reset-modal');
+    if (!modal) return;
+    const btn = modal.querySelector('.reset-confirm');
+    if (btn && btn._countdown) { clearInterval(btn._countdown); btn._countdown = null; }
+    modal.classList.add('hidden');
+    showResetStage(1);
   }
 
   // --- Spawning tiles from the library --------------------------------------

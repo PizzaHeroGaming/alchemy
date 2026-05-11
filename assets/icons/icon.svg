@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%"  stop-color="#3a1b5c"/>
+      <stop offset="55%" stop-color="#160a2c"/>
+      <stop offset="100%" stop-color="#07050d"/>
+    </radialGradient>
+
+    <linearGradient id="goldFill" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"  stop-color="#fff0a8"/>
+      <stop offset="35%" stop-color="#ffd23f"/>
+      <stop offset="100%" stop-color="#a87a14"/>
+    </linearGradient>
+
+    <linearGradient id="flask" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"  stop-color="#fff4c4"/>
+      <stop offset="40%" stop-color="#ffd23f"/>
+      <stop offset="100%" stop-color="#8a5a14"/>
+    </linearGradient>
+
+    <radialGradient id="potion" cx="50%" cy="60%" r="55%">
+      <stop offset="0%"  stop-color="#a6f3ff"/>
+      <stop offset="60%" stop-color="#4a8fd5"/>
+      <stop offset="100%" stop-color="#1f2a5c"/>
+    </radialGradient>
+
+    <radialGradient id="glow" cx="50%" cy="55%" r="50%">
+      <stop offset="0%"  stop-color="rgba(255,210,63,0.55)"/>
+      <stop offset="60%" stop-color="rgba(255,210,63,0.1)"/>
+      <stop offset="100%" stop-color="rgba(255,210,63,0)"/>
+    </radialGradient>
+
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background (full square; system can mask it to circle/squircle) -->
+  <rect width="512" height="512" fill="url(#bg)"/>
+
+  <!-- Faint runic dots in the field -->
+  <g fill="#f3c54a" opacity="0.18">
+    <circle cx="80"  cy="100" r="2"/>
+    <circle cx="430" cy="80"  r="1.6"/>
+    <circle cx="60"  cy="400" r="1.8"/>
+    <circle cx="460" cy="430" r="2.2"/>
+    <circle cx="120" cy="240" r="1.4"/>
+    <circle cx="400" cy="270" r="1.4"/>
+    <circle cx="245" cy="60"  r="1.6"/>
+    <circle cx="260" cy="470" r="1.5"/>
+  </g>
+
+  <!-- Hexagonal sigil ring (subtle) -->
+  <polygon points="256,80 396,160 396,320 256,400 116,320 116,160"
+           fill="none" stroke="#3d2a55" stroke-width="3" opacity="0.55"/>
+  <polygon points="256,110 372,176 372,304 256,370 140,304 140,176"
+           fill="none" stroke="#523872" stroke-width="2" opacity="0.45"/>
+
+  <!-- Warm glow behind the flask -->
+  <circle cx="256" cy="270" r="170" fill="url(#glow)"/>
+
+  <!-- Alembic / flask centerpiece -->
+  <g filter="url(#softGlow)">
+    <!-- Neck -->
+    <path d="M226 130 h60 v8 h-60 z" fill="url(#flask)" stroke="#5a3a10" stroke-width="3"/>
+    <path d="M230 138 h52 v52 h-52 z" fill="url(#flask)" stroke="#5a3a10" stroke-width="3"/>
+    <!-- Bulb (glass outline) -->
+    <path d="M230 190
+             C 230 215, 150 240, 150 320
+             C 150 380, 200 415, 256 415
+             C 312 415, 362 380, 362 320
+             C 362 240, 282 215, 282 190 Z"
+          fill="rgba(255,255,255,0.06)"
+          stroke="url(#flask)" stroke-width="6" stroke-linejoin="round"/>
+    <!-- Potion inside the bulb -->
+    <path d="M242 252
+             C 220 270, 168 290, 168 332
+             C 168 372, 208 400, 256 400
+             C 304 400, 344 372, 344 332
+             C 344 290, 292 270, 270 252 Z"
+          fill="url(#potion)"/>
+    <!-- Liquid highlight -->
+    <ellipse cx="208" cy="310" rx="36" ry="8" fill="#cfeeff" opacity="0.55"/>
+    <!-- Bubbles -->
+    <circle cx="222" cy="345" r="6" fill="#cfeeff" opacity="0.85"/>
+    <circle cx="244" cy="368" r="4" fill="#cfeeff" opacity="0.7"/>
+    <circle cx="280" cy="352" r="5" fill="#cfeeff" opacity="0.8"/>
+  </g>
+
+  <!-- Stopper cap -->
+  <rect x="222" y="118" width="68" height="18" rx="5" fill="url(#goldFill)" stroke="#5a3a10" stroke-width="3"/>
+
+  <!-- Sparkles -->
+  <g fill="url(#goldFill)">
+    <polygon points="120,200 124,212 136,216 124,220 120,232 116,220 104,216 116,212"/>
+    <polygon points="402,210 405,219 414,222 405,225 402,234 399,225 390,222 399,219"/>
+    <polygon points="170,90 173,99 182,102 173,105 170,114 167,105 158,102 167,99"/>
+    <polygon points="354,418 357,427 366,430 357,433 354,442 351,433 342,430 351,427"/>
+  </g>
+</svg>

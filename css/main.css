@@ -197,6 +197,160 @@ button.danger:hover { background: rgba(196,49,74,0.15); }
 #loading.hidden { display: none; }
 
 .hidden { display: none !important; }
+
+/* About modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(7, 5, 13, 0.75);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.modal-card {
+  position: relative;
+  max-width: 520px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: linear-gradient(180deg, var(--bg-mid), var(--bg-deep));
+  border: 1px solid var(--gold);
+  border-radius: 14px;
+  box-shadow: var(--glow), 0 24px 60px rgba(0,0,0,0.7);
+  padding: 28px 32px 24px;
+  color: var(--parchment);
+}
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid var(--border-light);
+  color: var(--parchment-dim);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-close:hover { background: var(--danger); color: white; border-color: var(--danger); box-shadow: none; }
+.modal-title {
+  margin: 0 0 16px;
+  font-family: 'Cinzel', serif;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--gold-bright);
+  text-transform: uppercase;
+  text-align: center;
+}
+.modal-body { font-size: 15px; line-height: 1.55; }
+.modal-body h3 {
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 18px 0 6px;
+}
+.modal-body ul {
+  margin: 0 0 8px;
+  padding-left: 18px;
+}
+.modal-body li { margin-bottom: 4px; }
+.modal-body p { margin: 0 0 10px; }
+.modal-flavor {
+  font-style: italic;
+  color: var(--parchment-dim);
+  text-align: center;
+  padding: 0 8px 6px;
+}
+.credits { text-align: center; }
+.credits .phg { color: var(--gold-bright); font-family: 'Cinzel', serif; letter-spacing: 0.08em; }
+.credits-dim { color: var(--ink-mute); font-size: 13px; font-style: italic; }
+.credits-mark {
+  text-align: center;
+  margin: 18px 0 0 !important;
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 0.4em;
+  color: rgba(245, 230, 200, 0.4);
+}
+.credits-mark::first-letter { color: var(--ember); }
+
+/* Reset modal */
+.reset-card { max-width: 440px; }
+.reset-card .modal-title { color: #ffb0a8; }
+.reset-stage.hidden { display: none; }
+.reset-warn {
+  color: var(--danger);
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin: 12px 0 18px !important;
+}
+.reset-final {
+  font-size: 17px;
+  text-align: center;
+  color: var(--parchment) !important;
+  font-style: normal !important;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.06em;
+}
+#reset-count {
+  color: var(--gold-bright);
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+}
+.reset-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.reset-cancel {
+  background: var(--bg-soft);
+  color: var(--parchment);
+  border-color: var(--border-light);
+  padding: 10px 18px;
+}
+.reset-next {
+  background: rgba(196,49,74,0.18);
+  color: #ffb0a8;
+  border-color: #5a2a3a;
+  padding: 10px 18px;
+}
+.reset-next:hover { background: rgba(196,49,74,0.35); box-shadow: none; }
+.reset-confirm {
+  background: var(--danger);
+  color: white;
+  border-color: var(--danger);
+  padding: 10px 18px;
+  font-weight: 700;
+}
+.reset-confirm:hover:not(:disabled) { background: #d63e58; border-color: #d63e58; box-shadow: 0 0 12px rgba(196,49,74,0.5); }
+.reset-confirm:disabled {
+  background: var(--bg-soft);
+  color: var(--ink-mute);
+  border-color: var(--border);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
 .mobile-only { display: none; }
 
 @media (max-width: 720px) and (orientation: portrait) {

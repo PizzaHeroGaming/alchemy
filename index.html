@@ -6,13 +6,22 @@
   <meta name="theme-color" content="#0a0612">
   <title>Alchemy — Forge the Unknown</title>
 
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/icon.svg">
+  <link rel="apple-touch-icon" href="assets/icons/icon.svg">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Alchemy">
+  <meta name="mobile-web-app-capable" content="yes">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=EB+Garamond:ital@0;1&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="css/main.css?v=4">
-  <link rel="stylesheet" href="css/icons.css?v=4">
-  <link rel="stylesheet" href="css/workspace.css?v=4">
+  <link rel="stylesheet" href="css/splash.css?v=8">
+  <link rel="stylesheet" href="css/main.css?v=8">
+  <link rel="stylesheet" href="css/icons.css?v=8">
+  <link rel="stylesheet" href="css/workspace.css?v=8">
 </head>
 <body>
   <div id="app">
@@ -27,6 +36,7 @@
         <span id="discovery-count">0 / 0</span>
       </div>
       <div class="actions">
+        <button id="btn-about" class="ghost" title="About this game">About</button>
         <button id="btn-clear" class="ghost" title="Clear the workspace">Clear</button>
         <button id="btn-reset" class="ghost danger" title="Reset all progress">Reset</button>
       </div>
@@ -63,18 +73,74 @@
     </main>
 
     <div id="loading">Awakening the elements…</div>
+
+    <div id="reset-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="reset-title">
+      <div class="modal-backdrop" data-close></div>
+      <div class="modal-card reset-card">
+        <button class="modal-close" data-close aria-label="Close">✕</button>
+        <h2 id="reset-title" class="modal-title">Reset Progress?</h2>
+        <div class="modal-body">
+          <!-- Stage 1 -->
+          <div class="reset-stage" data-stage="1">
+            <p class="modal-flavor">All <span id="reset-count">0</span> discoveries will be cast back into the void. The four basic elements remain.</p>
+            <p class="reset-warn">This cannot be undone.</p>
+            <div class="reset-actions">
+              <button type="button" class="reset-cancel" data-close>Cancel</button>
+              <button type="button" class="reset-next">Continue</button>
+            </div>
+          </div>
+          <!-- Stage 2 -->
+          <div class="reset-stage hidden" data-stage="2">
+            <p class="modal-flavor reset-final">Are you absolutely certain?</p>
+            <p class="reset-warn">This is your last warning.</p>
+            <div class="reset-actions">
+              <button type="button" class="reset-cancel" data-close>Keep my progress</button>
+              <button type="button" class="reset-confirm" disabled>Yes, reset everything</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="about-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="about-title">
+      <div class="modal-backdrop" data-close></div>
+      <div class="modal-card">
+        <button class="modal-close" data-close aria-label="Close">✕</button>
+        <h2 id="about-title" class="modal-title">About</h2>
+        <div class="modal-body">
+          <p class="modal-flavor">An apprentice's grimoire — drag and combine the four elements of creation to unearth the world hidden inside them.</p>
+          <h3>How to play</h3>
+          <ul>
+            <li>Drag any element from the library onto the workspace.</li>
+            <li>Drop one element onto another to combine them.</li>
+            <li>Discoveries are kept in your library forever.</li>
+            <li>Hover a tile and click the ✕ to remove it. <strong>Clear</strong> empties the workspace; <strong>Reset</strong> wipes all progress.</li>
+          </ul>
+          <h3>Progression</h3>
+          <p>Eight ranks await — Initiate, Apprentice, Adept, Scholar, Mystic, Sage, Archmage, and finally Demiurge at 100% discovered.</p>
+          <h3>Credits</h3>
+          <p class="credits">
+            A <strong class="phg">Pizza Hero Gaming</strong> project.<br>
+            Made by <strong>YourPizzaHero</strong>.<br>
+            <span class="credits-dim">158 elements · ~220 recipes · vanilla JS, no build step</span>
+          </p>
+          <p class="credits-mark">◆ PHG · MMXXVI</p>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <script src="data/elements.js?v=4"></script>
-  <script src="data/recipes.js?v=4"></script>
-  <script src="js/storage.js?v=4"></script>
-  <script src="js/state.js?v=4"></script>
-  <script src="js/recipes.js?v=4"></script>
-  <script src="js/ranks.js?v=4"></script>
-  <script src="js/icons.js?v=4"></script>
-  <script src="js/progress.js?v=4"></script>
-  <script src="js/sidebar.js?v=4"></script>
-  <script src="js/workspace.js?v=4"></script>
-  <script src="js/main.js?v=4"></script>
+  <script src="js/splash.js?v=8"></script>
+  <script src="data/elements.js?v=8"></script>
+  <script src="data/recipes.js?v=8"></script>
+  <script src="js/storage.js?v=8"></script>
+  <script src="js/state.js?v=8"></script>
+  <script src="js/recipes.js?v=8"></script>
+  <script src="js/ranks.js?v=8"></script>
+  <script src="js/icons.js?v=8"></script>
+  <script src="js/progress.js?v=8"></script>
+  <script src="js/sidebar.js?v=8"></script>
+  <script src="js/workspace.js?v=8"></script>
+  <script src="js/main.js?v=8"></script>
 </body>
 </html>
