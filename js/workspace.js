@@ -122,85 +122,81 @@
   }
 
   // --- Spawning tiles from the library --------------------------------------
-  // On pointerdown, a 'ghost' tile is spawned in a fixed-position layer
-  // and follows the pointer smoothly anywhere on screen. On release:
-  //   - over the workspace → ghost is committed as a real tile and
-  //     immediately checked for a combination target.
-  //   - elsewhere (still in library, off-screen, etc.) → ghost is removed
-  //     with a quick fade, no tile placed.
-  // A tap with no movement is treated as "release in library" → no commit.
+  // Two interaction models, chosen based on input device:
+  //   Mouse / pen: dragging starts immediately on pointerdown. A 'ghost' tile
+  //     follows the pointer; releasing over the workspace commits, otherwise
+  //     it fades.
+  //   Touch: pointerdown does nothing visible right away. The gesture is
+  //     classified during pointermove:
+  //       - Vertical movement → scroll the library (manual scroll, since the
+  //         tile's touch-action is none).
+  //       - Sideways movement past a threshold → enter drag mode.
+  //       - Holding still for LONG_PRESS_MS → enter drag mode.
+  //       - Quick release before either → no-op (just a tap).
+  //
+  // This makes scrolling reliable on touch (a flick simply scrolls without
+  // accidentally creating tiles) while still allowing the player to drag a
+  // tile onto the board with a deliberate gesture.
+
+  const LONG_PRESS_MS  = 350;
+  const HORIZ_DRAG_PX  = 12;   // sideways movement → start drag immediately
+  const VERT_SCROLL_PX = 6;    // vertical movement before scroll engages
 
   function attachLibraryDragSource(node, elementId) {
     node.addEventListener('pointerdown', (e) => {
       if (e.button !== undefined && e.button !== 0) return;
-      e.preventDefault();
-      const pointerId = e.pointerId;
-      const el = State.state.byId.get(elementId);
-      if (!el) return;
+      const isTouch = e.pointerType !== 'mouse';
 
-      // Build a ghost tile in document.body (position:fixed) so it can
-      // follow the pointer anywhere, including over the library.
-      const ghost = document.createElement('div');
-      ghost.className = 'tile drag-ghost';
-      ghost.appendChild(Icons.buildIcon(el));
-      const nm = document.createElement('div');
-      nm.className = 'name';
-      nm.textContent = el.name;
-      ghost.appendChild(nm);
-      document.body.appendChild(ghost);
-      positionGhost(e.clientX, e.clientY);
-      let moved = false;
-
-      function positionGhost(clientX, clientY) {
-        ghost.style.left = (clientX - TILE_W / 2) + 'px';
-        ghost.style.top  = (clientY - TILE_H / 2) + 'px';
+      if (!isTouch) {
+        // Mouse path — start drag immediately, no intent classification.
+        e.preventDefault();
+        beginLibraryDrag(elementId, e.pointerId, e.clientX, e.clientY);
+        return;
       }
+
+      // Touch path — wait to decide between scroll, drag, or tap.
+      const pointerId = e.pointerId;
+      const startX = e.clientX, startY = e.clientY;
+      const scrollContainer = node.closest('#library-list');
+      const initialScroll = scrollContainer ? scrollContainer.scrollTop : 0;
+      let mode = null;  // null | 'drag' | 'scroll'
+
+      const longPressTimer = setTimeout(() => {
+        if (mode !== null) return;
+        mode = 'drag';
+        node.classList.add('lib-pressed');
+        beginLibraryDrag(elementId, pointerId, startX, startY);
+      }, LONG_PRESS_MS);
 
       function onMove(ev) {
         if (ev.pointerId !== pointerId) return;
-        moved = true;
-        positionGhost(ev.clientX, ev.clientY);
-        // Highlight any workspace tile we're hovering, for combine feedback.
-        const wsRect = workspaceEl.getBoundingClientRect();
-        const localX = ev.clientX - wsRect.left - TILE_W / 2;
-        const localY = ev.clientY - wsRect.top  - TILE_H / 2;
-        const overWorkspace = ev.clientX >= wsRect.left && ev.clientX <= wsRect.right
-                           && ev.clientY >= wsRect.top  && ev.clientY <= wsRect.bottom;
-        ghost.classList.toggle('over-workspace', overWorkspace);
-        const phantom = { x: localX, y: localY };
-        const target = overWorkspace ? findOverlap(phantom) : null;
-        for (const t of tiles) t.node.classList.toggle('overlapping', t === target);
+        const dx = ev.clientX - startX;
+        const dy = ev.clientY - startY;
+
+        if (mode === null) {
+          if (Math.abs(dx) > HORIZ_DRAG_PX && Math.abs(dx) > Math.abs(dy) * 1.2) {
+            clearTimeout(longPressTimer);
+            mode = 'drag';
+            node.classList.add('lib-pressed');
+            beginLibraryDrag(elementId, pointerId, ev.clientX, ev.clientY);
+            return;
+          }
+          if (Math.abs(dy) > VERT_SCROLL_PX) {
+            clearTimeout(longPressTimer);
+            mode = 'scroll';
+          }
+        }
+
+        if (mode === 'scroll' && scrollContainer) {
+          scrollContainer.scrollTop = initialScroll - dy;
+        }
+        // drag-mode movement is handled by beginLibraryDrag's own listeners
       }
 
       function onEnd(ev) {
         if (ev.pointerId !== pointerId) return;
-        cleanup();
-        const wsRect = workspaceEl.getBoundingClientRect();
-        const overWorkspace = ev.clientX >= wsRect.left && ev.clientX <= wsRect.right
-                           && ev.clientY >= wsRect.top  && ev.clientY <= wsRect.bottom;
-        for (const t of tiles) t.node.classList.remove('overlapping');
-
-        if (!moved || !overWorkspace) {
-          // Cancel: gentle fade-out of the ghost.
-          ghost.classList.add('drag-ghost-cancel');
-          setTimeout(() => ghost.remove(), 200);
-          return;
-        }
-
-        // Commit: replace the ghost with a real workspace tile at the
-        // workspace-local coordinates.
-        const x = ev.clientX - wsRect.left - TILE_W / 2;
-        const y = ev.clientY - wsRect.top  - TILE_H / 2;
-        const tile = spawnTile(elementId, x, y);
-        ghost.remove();
-        if (!tile) return;
-
-        // Check for immediate combination if released onto another tile.
-        const target = findOverlap(tile);
-        if (target) tryCombine(tile, target);
-      }
-
-      function cleanup() {
+        clearTimeout(longPressTimer);
+        node.classList.remove('lib-pressed');
         document.removeEventListener('pointermove', onMove);
         document.removeEventListener('pointerup', onEnd);
         document.removeEventListener('pointercancel', onEnd);
@@ -210,6 +206,73 @@
       document.addEventListener('pointerup', onEnd);
       document.addEventListener('pointercancel', onEnd);
     });
+  }
+
+  // Begin the actual drag-with-ghost flow. Used by both mouse and the
+  // touch path once intent has been classified as 'drag'.
+  function beginLibraryDrag(elementId, pointerId, startX, startY) {
+    const el = State.state.byId.get(elementId);
+    if (!el) return;
+
+    const ghost = document.createElement('div');
+    ghost.className = 'tile drag-ghost';
+    ghost.appendChild(Icons.buildIcon(el));
+    const nm = document.createElement('div');
+    nm.className = 'name';
+    nm.textContent = el.name;
+    ghost.appendChild(nm);
+    document.body.appendChild(ghost);
+    positionGhost(startX, startY);
+
+    function positionGhost(cx, cy) {
+      ghost.style.left = (cx - TILE_W / 2) + 'px';
+      ghost.style.top  = (cy - TILE_H / 2) + 'px';
+    }
+
+    function onMove(ev) {
+      if (ev.pointerId !== pointerId) return;
+      positionGhost(ev.clientX, ev.clientY);
+      const wsRect = workspaceEl.getBoundingClientRect();
+      const localX = ev.clientX - wsRect.left - TILE_W / 2;
+      const localY = ev.clientY - wsRect.top  - TILE_H / 2;
+      const overWorkspace = ev.clientX >= wsRect.left && ev.clientX <= wsRect.right
+                         && ev.clientY >= wsRect.top  && ev.clientY <= wsRect.bottom;
+      ghost.classList.toggle('over-workspace', overWorkspace);
+      const target = overWorkspace ? findOverlap({ x: localX, y: localY }) : null;
+      for (const t of tiles) t.node.classList.toggle('overlapping', t === target);
+    }
+
+    function onEnd(ev) {
+      if (ev.pointerId !== pointerId) return;
+      cleanup();
+      const wsRect = workspaceEl.getBoundingClientRect();
+      const overWorkspace = ev.clientX >= wsRect.left && ev.clientX <= wsRect.right
+                         && ev.clientY >= wsRect.top  && ev.clientY <= wsRect.bottom;
+      for (const t of tiles) t.node.classList.remove('overlapping');
+
+      if (!overWorkspace) {
+        ghost.classList.add('drag-ghost-cancel');
+        setTimeout(() => ghost.remove(), 200);
+        return;
+      }
+      const x = ev.clientX - wsRect.left - TILE_W / 2;
+      const y = ev.clientY - wsRect.top  - TILE_H / 2;
+      const tile = spawnTile(elementId, x, y);
+      ghost.remove();
+      if (!tile) return;
+      const target = findOverlap(tile);
+      if (target) tryCombine(tile, target);
+    }
+
+    function cleanup() {
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onEnd);
+      document.removeEventListener('pointercancel', onEnd);
+    }
+
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onEnd);
+    document.addEventListener('pointercancel', onEnd);
   }
 
   function spawnTile(elementId, x, y) {

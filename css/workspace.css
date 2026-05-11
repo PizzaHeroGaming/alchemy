@@ -330,10 +330,9 @@ body.layout-flipped #workspace { border-right: none; border-left: 1px solid var(
   gap: 8px;
   align-content: start;
   scrollbar-width: thin;
-  /* Override the body-level touch-action:none so the player can flick
-     to scroll through the discovered list on touch devices. A vertical
-     swipe scrolls; horizontal drag still goes through pointer events to
-     spawn a workspace tile. */
+  /* Allow native pan-y scrolling on the empty gutters between tiles —
+     the tiles themselves use touch-action:none and we manually scroll
+     this container based on vertical pointer movement. */
   touch-action: pan-y;
 }
 #library-list::-webkit-scrollbar { width: 6px; }
@@ -351,12 +350,18 @@ body.layout-flipped #workspace { border-right: none; border-left: 1px solid var(
   border: 1px solid var(--border);
   border-radius: 10px;
   cursor: grab;
-  /* pan-y lets a vertical finger-swipe across a tile scroll the library
-     instead of being captured by drag. Horizontal/diagonal drags still
-     produce pointer events, which spawn the workspace tile. */
-  touch-action: pan-y;
-  transition: background 0.12s ease, border-color 0.12s ease, transform 0.05s ease;
+  /* none — we handle scroll vs drag manually from pointer events so we
+     can make touch intent unambiguous (vertical swipe scrolls; long-press
+     or sideways drag enters drag mode). */
+  touch-action: none;
+  transition: background 0.12s ease, border-color 0.12s ease, transform 0.08s ease, box-shadow 0.12s ease;
   min-height: var(--lib-tile-size, 78px);
+}
+.lib-tile.lib-pressed {
+  background: rgba(58,40,90,0.85);
+  border-color: var(--gold);
+  transform: scale(1.06);
+  box-shadow: 0 0 14px rgba(216,168,56,0.4);
 }
 .lib-tile:hover { background: rgba(58,40,90,0.7); border-color: var(--border-light); }
 .lib-tile:active { cursor: grabbing; transform: scale(0.96); }
