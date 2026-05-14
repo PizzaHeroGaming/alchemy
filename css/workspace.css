@@ -387,7 +387,8 @@ body.layout-flipped #workspace { border-right: none; border-left: 1px solid var(
 
 /* Compact landscape phone layout */
 @media (orientation: landscape) and (max-height: 500px) {
-  #library { width: 240px; }
+  /* library width left to --library-w (the Settings layout preset) so the
+     Focus on board / Balanced / Focus on library choice works on phones too */
   .tile { width: 70px; height: 70px; }
   #library-list { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); }
   :root { --topbar-h: 40px; }
