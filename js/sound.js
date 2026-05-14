@@ -24,13 +24,19 @@
     } catch (e) {}
 
     // Resume audio context on first user gesture (browsers require this).
+    // iOS Safari has historically been picky about *which* event types
+    // qualify, so we listen to several and run from the first that fires.
     const arm = () => {
       ensureContext();
       document.removeEventListener('pointerdown', arm, true);
-      document.removeEventListener('keydown', arm, true);
+      document.removeEventListener('touchstart',  arm, true);
+      document.removeEventListener('keydown',     arm, true);
+      document.removeEventListener('click',       arm, true);
     };
     document.addEventListener('pointerdown', arm, true);
-    document.addEventListener('keydown', arm, true);
+    document.addEventListener('touchstart',  arm, true);
+    document.addEventListener('keydown',     arm, true);
+    document.addEventListener('click',       arm, true);
   }
 
   function ensureContext() {
