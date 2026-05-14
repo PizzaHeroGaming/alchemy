@@ -73,16 +73,17 @@ ignite.
 In addition to the **159 pair recipes**, there are **28 hand-authored
 "miracle" recipes** that take 3, 4, or 5 specific ingredients at once:
 
-- **Triplets** (Adept+): water + earth + fire = primordial, moon + sun + star
-  = cosmos, knowledge + idea + time = wisdom, human + sword + magic = knight,
-  human + wolf + moon = werewolf, dragon + fire + soul = phoenix, and many more.
-- **Quartets** (Mystic+): water + fire + earth + air = aether, love + dream
-  + idea + magic = inspiration, gold + diamond + magic + crystal =
-  philosopher's stone, …
-- **Quintet** (Archmage): water + earth + fire + air + life = **eden**.
+- **Triplets** unlock at Adept (3 slots) — 20 of them.
+- **Quartets** unlock at Mystic (4 slots) — 7 of them.
+- **Quintet** unlocks at Archmage (5 slots) — 1 great working.
 
-Multi-input miracles are checked *before* sequential pair fallback, so the
-miracle path always wins when its ingredients are all in the slots.
+These are the rituals that give the larger circles their reason for being —
+particular combinations of mythic, conceptual, and primal elements that no
+sequential pair-chain can reach. Multi-input miracles are checked *before*
+sequential pair fallback, so the miracle path always wins when its
+ingredients are all in the slots.
+
+(The specific recipes aren't listed here — that's the game.)
 
 ## The Tree of Forging
 
