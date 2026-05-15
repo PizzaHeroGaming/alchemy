@@ -18,18 +18,38 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=EB+Garamond:ital@0;1&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="css/splash.css?v=65">
-  <link rel="stylesheet" href="css/main.css?v=65">
-  <link rel="stylesheet" href="css/icons.css?v=65">
-  <link rel="stylesheet" href="css/workspace.css?v=65">
-  <link rel="stylesheet" href="css/circle.css?v=65">
-  <link rel="stylesheet" href="css/themes.css?v=65">
-  <link rel="stylesheet" href="css/seasons.css?v=65">
-  <link rel="stylesheet" href="css/lineage.css?v=65">
-  <link rel="stylesheet" href="css/hints.css?v=65">
+  <link rel="stylesheet" href="css/splash.css?v=67">
+  <link rel="stylesheet" href="css/main.css?v=67">
+  <link rel="stylesheet" href="css/icons.css?v=67">
+  <link rel="stylesheet" href="css/workspace.css?v=67">
+  <link rel="stylesheet" href="css/circle.css?v=67">
+  <link rel="stylesheet" href="css/themes.css?v=67">
+  <link rel="stylesheet" href="css/seasons.css?v=67">
+  <link rel="stylesheet" href="css/lineage.css?v=67">
+  <link rel="stylesheet" href="css/hints.css?v=67">
+  <link rel="stylesheet" href="css/title.css?v=67">
 </head>
 <body>
   <div id="app">
+    <div id="title-screen" class="hidden" role="dialog" aria-modal="true" aria-labelledby="title-name">
+      <div class="title-bg" aria-hidden="true">
+        <div class="title-embers"></div>
+      </div>
+      <div class="title-content">
+        <div class="title-glyph" aria-hidden="true">⚗</div>
+        <h1 id="title-name" class="title-name">ATHANOR</h1>
+        <div class="title-rule" aria-hidden="true">─────────</div>
+        <p class="title-tagline">Forge the Unknown</p>
+        <div id="title-welcome" class="title-welcome"></div>
+        <button id="title-enter" type="button" class="title-enter">Enter the Circle</button>
+        <div class="title-secondary">
+          <button id="title-settings" type="button" class="title-link">Settings</button>
+          <span class="title-link-sep" aria-hidden="true">·</span>
+          <button id="title-about" type="button" class="title-link">About</button>
+        </div>
+      </div>
+    </div>
+
     <header id="topbar">
       <div class="title">
         <span class="glyph">⚗</span>
@@ -301,29 +321,30 @@
 
   </div>
 
-  <script src="js/splash.js?v=65"></script>
-  <script src="data/elements.js?v=65"></script>
-  <script src="data/recipes.js?v=65"></script>
-  <script src="data/multi_recipes.js?v=65"></script>
-  <script src="js/storage.js?v=65"></script>
-  <script src="js/state.js?v=65"></script>
-  <script src="js/recipes.js?v=65"></script>
-  <script src="js/multi_recipes.js?v=65"></script>
-  <script src="js/ranks.js?v=65"></script>
-  <script src="js/icons.js?v=65"></script>
-  <script src="js/progress.js?v=65"></script>
-  <script src="js/saves.js?v=65"></script>
-  <script src="js/tutorial.js?v=65"></script>
-  <script src="js/lineage.js?v=65"></script>
-  <script src="js/graph.js?v=65"></script>
-  <script src="js/ads.js?v=65"></script>
-  <script src="js/hints.js?v=65"></script>
-  <script src="js/seasons.js?v=65"></script>
-  <script src="js/sound.js?v=65"></script>
-  <script src="js/settings.js?v=65"></script>
-  <script src="js/sidebar.js?v=65"></script>
-  <script src="js/circle.js?v=65"></script>
-  <script src="js/workspace.js?v=65"></script>
-  <script src="js/main.js?v=65"></script>
+  <script src="js/splash.js?v=67"></script>
+  <script src="data/elements.js?v=67"></script>
+  <script src="data/recipes.js?v=67"></script>
+  <script src="data/multi_recipes.js?v=67"></script>
+  <script src="js/storage.js?v=67"></script>
+  <script src="js/state.js?v=67"></script>
+  <script src="js/recipes.js?v=67"></script>
+  <script src="js/multi_recipes.js?v=67"></script>
+  <script src="js/ranks.js?v=67"></script>
+  <script src="js/icons.js?v=67"></script>
+  <script src="js/progress.js?v=67"></script>
+  <script src="js/saves.js?v=67"></script>
+  <script src="js/tutorial.js?v=67"></script>
+  <script src="js/lineage.js?v=67"></script>
+  <script src="js/graph.js?v=67"></script>
+  <script src="js/ads.js?v=67"></script>
+  <script src="js/hints.js?v=67"></script>
+  <script src="js/seasons.js?v=67"></script>
+  <script src="js/sound.js?v=67"></script>
+  <script src="js/settings.js?v=67"></script>
+  <script src="js/sidebar.js?v=67"></script>
+  <script src="js/circle.js?v=67"></script>
+  <script src="js/workspace.js?v=67"></script>
+  <script src="js/title.js?v=67"></script>
+  <script src="js/main.js?v=67"></script>
 </body>
 </html>

@@ -83,23 +83,38 @@
     Workspace.init();
     Sidebar.init();
     Saves.init();
-    if (typeof Lineage !== 'undefined') Lineage.init();
-    if (typeof Graph   !== 'undefined') Graph.init();
-    if (typeof Hints   !== 'undefined') Hints.init();
-    if (typeof Seasons !== 'undefined') Seasons.init();
-    if (typeof Sound   !== 'undefined') Sound.init();
+    if (typeof Lineage !== 'undefined')     Lineage.init();
+    if (typeof Graph   !== 'undefined')     Graph.init();
+    if (typeof Hints   !== 'undefined')     Hints.init();
+    if (typeof Seasons !== 'undefined')     Seasons.init();
+    if (typeof Sound   !== 'undefined')     Sound.init();
+    if (typeof TitleScreen !== 'undefined') TitleScreen.init();
     initAboutModal();
     initBoardOffset();
     initRotatePrompt();
 
     document.getElementById('loading').classList.add('hidden');
 
-    // First-run tutorial: start once the splash dismisses and (if it
-    // fired) the legacy-saves modal is closed. The listener self-removes
-    // on the *first* click anywhere on the modal — not just the OK paths —
-    // so it can't outlive the modal even if the player clicks the backdrop
-    // and then closes via the keyboard.
-    setTimeout(() => {
+    // Stage transitions on first load:
+    //   1. Pizza Hero Gaming splash plays on top (highest z-index).
+    //   2. When the player dismisses it, the title screen is already
+    //      mounted behind and becomes the foreground.
+    //   3. Tapping "Enter the Circle" fades the title screen out and
+    //      triggers the first-run tutorial (if not seen) once any
+    //      legacy-saves modal is closed.
+    if (typeof TitleScreen !== 'undefined') {
+      TitleScreen.show(onTitleEntered);
+    } else {
+      // Defensive: if the title screen isn't available, fall through
+      // to the old behavior so the player isn't stranded.
+      onTitleEntered();
+    }
+
+    if (typeof PizzaHeroSplash !== 'undefined') {
+      PizzaHeroSplash.show({ tagline: 'GAMING' });
+    }
+
+    function onTitleEntered() {
       const legacyModal = document.getElementById('legacy-saves-modal');
       const legacyOpen = legacyModal && !legacyModal.classList.contains('hidden');
       if (legacyOpen) {
@@ -110,12 +125,10 @@
         };
         legacyModal.addEventListener('click', once);
       } else {
-        Tutorial.maybeStartFirstRun && Tutorial.maybeStartFirstRun();
+        // Small delay so the title-screen exit animation finishes before
+        // the tutorial's first highlight ring tries to find its target.
+        setTimeout(() => Tutorial.maybeStartFirstRun && Tutorial.maybeStartFirstRun(), 300);
       }
-    }, 600);
-
-    if (typeof PizzaHeroSplash !== 'undefined') {
-      PizzaHeroSplash.show({ tagline: 'GAMING' });
     }
   } catch (err) {
     console.error('Failed to boot alchemy:', err);

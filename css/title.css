@@ -1,0 +1,245 @@
+/* Title screen — full-viewport overlay that sits above the game but
+   beneath the Pizza Hero Gaming splash. Same alchemical palette and
+   typography as the rest of the game; the only new ingredient is the
+   drifting-ember backdrop. */
+
+#title-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 950;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(
+    ellipse at center,
+    #1a0e1f 0%,
+    #0a0612 55%,
+    #03020a 100%
+  );
+  color: var(--ink, #fff);
+  opacity: 0;
+  transition: opacity 0.7s ease, transform 0.6s ease;
+  pointer-events: none;
+  /* Cover safe-area insets so the dark backdrop reaches the iPhone notch. */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+           env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+#title-screen.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+#title-screen.leaving {
+  opacity: 0;
+  transform: scale(1.04);
+}
+#title-screen.hidden { display: none; }
+
+/* Background layer: candlelit glow + drifting embers. */
+.title-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.title-bg::before {
+  /* Warm radial glow behind the title — pulses gently. */
+  content: '';
+  position: absolute;
+  inset: -10%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 168, 60, 0.18) 0%,
+    rgba(255, 130, 40, 0.08) 28%,
+    transparent 60%
+  );
+  animation: title-glow 6s ease-in-out infinite alternate;
+}
+@keyframes title-glow {
+  from { opacity: 0.75; transform: scale(1); }
+  to   { opacity: 1;    transform: scale(1.05); }
+}
+
+.title-embers {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.title-ember {
+  position: absolute;
+  bottom: -20px;
+  width: var(--size, 4px);
+  height: var(--size, 4px);
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffd87a 0%, #ff9a3c 50%, rgba(255, 100, 40, 0) 80%);
+  filter: blur(0.4px);
+  opacity: 0;
+  animation: title-ember-rise var(--dur, 12s) linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes title-ember-rise {
+  0%   { transform: translate(0, 0)               scale(0.6); opacity: 0; }
+  10%  { opacity: 0.9; }
+  90%  { opacity: 0.5; }
+  100% { transform: translate(var(--drift, 0), -110vh) scale(1.1); opacity: 0; }
+}
+
+/* --- Foreground content -------------------------------------------------- */
+.title-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 560px;
+  padding: 28px 32px;
+}
+
+.title-glyph {
+  font-size: 80px;
+  line-height: 1;
+  color: var(--accent, #ffd23f);
+  text-shadow:
+    0 0 22px rgba(255, 210, 63, 0.55),
+    0 0 50px rgba(255, 168, 60, 0.32);
+  animation: title-glyph-pulse 4s ease-in-out infinite alternate;
+}
+@keyframes title-glyph-pulse {
+  from { text-shadow: 0 0 18px rgba(255, 210, 63, 0.45), 0 0 36px rgba(255, 168, 60, 0.22); }
+  to   { text-shadow: 0 0 28px rgba(255, 210, 63, 0.7),  0 0 60px rgba(255, 168, 60, 0.4); }
+}
+
+.title-name {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 64px;
+  letter-spacing: 0.32em;
+  margin: 12px 0 4px;
+  /* Letter-spacing pushes content right; pull it back so it visually centers. */
+  padding-left: 0.32em;
+  color: var(--ink, #fff);
+  text-shadow: 0 0 14px rgba(255, 210, 63, 0.35);
+}
+
+.title-rule {
+  color: var(--accent, #ffd23f);
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.4em;
+  font-size: 12px;
+  margin: 2px 0 8px;
+  opacity: 0.65;
+}
+
+.title-tagline {
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 20px;
+  color: var(--ink-dim, #d8c9ec);
+  margin: 0 0 28px;
+  letter-spacing: 0.02em;
+}
+
+.title-welcome {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 32px;
+  font-family: 'EB Garamond', serif;
+  color: var(--ink-dim, #d8c9ec);
+}
+.title-welcome-line {
+  font-size: 18px;
+  color: var(--accent, #ffd23f);
+  font-style: italic;
+  letter-spacing: 0.04em;
+}
+.title-welcome-stats {
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.title-enter {
+  display: inline-block;
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #0a0612;
+  background: linear-gradient(180deg, #ffe27a 0%, var(--accent, #ffd23f) 60%, #cf9a16 100%);
+  border: 0;
+  border-radius: 4px;
+  padding: 18px 36px;
+  cursor: pointer;
+  box-shadow:
+    0 8px 22px rgba(255, 210, 63, 0.32),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.18);
+  transition: transform 0.12s ease, filter 0.15s ease, box-shadow 0.15s ease;
+}
+/* Redeclare the gradient on every state — the global `button:hover` rule
+   in main.css sets a dark `--bg-mid` background that would otherwise win
+   the cascade (since :hover beats the base class). Same defense for
+   :active and :focus so the gold gradient persists across all states. */
+.title-enter:hover,
+.title-enter:focus,
+.title-enter:focus-visible {
+  background: linear-gradient(180deg, #fff0a8 0%, #ffdc52 60%, #d6a219 100%);
+  filter: brightness(1.04);
+  box-shadow:
+    0 12px 28px rgba(255, 210, 63, 0.5),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+  outline: none;
+}
+.title-enter:active {
+  background: linear-gradient(180deg, #ffd96a 0%, #e9b822 60%, #b08312 100%);
+  transform: translateY(1px);
+  filter: brightness(0.98);
+  box-shadow:
+    0 4px 12px rgba(255, 210, 63, 0.28),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+
+.title-secondary {
+  margin-top: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: var(--ink-dim, #d8c9ec);
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.title-link {
+  background: transparent;
+  border: 0;
+  color: var(--ink-dim, #d8c9ec);
+  font-family: inherit;
+  font-size: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 2px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.title-link:hover {
+  color: var(--accent, #ffd23f);
+  background: rgba(255, 210, 63, 0.06);
+}
+.title-link-sep {
+  opacity: 0.4;
+}
+
+/* Mobile / compact layout: shrink the title block. */
+@media (max-height: 600px) {
+  .title-glyph { font-size: 56px; }
+  .title-name { font-size: 42px; letter-spacing: 0.28em; padding-left: 0.28em; }
+  .title-tagline { font-size: 16px; margin-bottom: 18px; }
+  .title-welcome { margin-bottom: 20px; }
+  .title-enter { padding: 14px 28px; font-size: 13px; }
+}
+@media (max-width: 480px) {
+  .title-name { font-size: 36px; letter-spacing: 0.24em; padding-left: 0.24em; }
+}
