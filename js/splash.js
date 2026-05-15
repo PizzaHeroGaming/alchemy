@@ -46,6 +46,12 @@
       dismissed = true;
       window.removeEventListener('keydown', onKey);
       splash.removeEventListener('click', onClick);
+      // Drop phs-shake before applying phs-out. Both classes carry the
+      // same specificity and phs-shake appears later in splash.css, so
+      // if both are present at dismiss time phs-shake's animation rule
+      // wins and phs-fade-out never runs — the splash just disappears
+      // when splash.remove() fires.
+      splash.classList.remove('phs-shake');
       splash.classList.add('phs-out');
       // Fire onDismiss the instant the fade-out begins so the caller
       // can cross-fade its next screen in during PHG's 1.1s exit.

@@ -121,6 +121,9 @@
     if (typeof PizzaHeroSplash !== 'undefined') {
       PizzaHeroSplash.show({
         tagline: 'GAMING',
+        // Auto-dismiss after the default 3.8s. The player can still
+        // click/key to dismiss early. The fade-out runs cleanly now
+        // that splash.js drops phs-shake before applying phs-out.
         // onComplete fires AFTER the PHG splash has fully faded out
         // (vs. onDismiss which fires when the fade-out begins). Using
         // onComplete gives a deliberate "fade to black, then fade in
