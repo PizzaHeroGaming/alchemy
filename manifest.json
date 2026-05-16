@@ -1,7 +1,7 @@
 {
-  "name": "Athanor: Forge the Unknown",
+  "name": "Athanor: Alchemy Merge",
   "short_name": "Athanor",
-  "description": "An alchemist's working circle. Drag elements into the sigil slots and forge the unknown. A Pizza Hero Gaming project.",
+  "description": "An alchemist's working circle — drag elements into the sigil slots and merge them to forge the unknown. 190 discoveries hidden across pair and miracle recipes. A Pizza Hero Gaming project.",
   "id": "/",
   "start_url": "./",
   "scope": "./",

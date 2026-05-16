@@ -1,4 +1,6 @@
-# Athanor: Forge the Unknown
+# Athanor: Alchemy Merge
+
+*— Forge the Unknown —*
 
 A discovery-based crafting game themed as a dark alchemist's working circle.
 Drag elements into sigil slots, watch burning ley-lines race around the
