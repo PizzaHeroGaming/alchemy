@@ -8,21 +8,21 @@
 //
 // ============================================================
 //  MASTER ENABLE FLAG
-//  Flip ADS_ENABLED to true ONCE all of the following are ready:
-//    1. Google AdMob account approved + payment info accepted.
-//    2. Real rewarded ad unit IDs created for Android (and iOS).
-//    3. @capacitor-community/admob installed in the wrapper project.
-//    4. AdsInterface (Kotlin) bridge exposing window.AndroidAds.showRewarded.
-//    5. `__onRewarded(success)` callback wired on the native side.
-//  Until then, ADS_ENABLED=false hides the Hint button entirely so
-//  testers never see an unfulfilled "Watch ad" promise.
+//  Auto-detects the Capacitor wrapper. On a wrapped Android build
+//  window.Capacitor is injected by the native shell, so the Hint
+//  button appears and showRewarded() routes through the Kotlin
+//  AdsInterface. In a plain browser (testing flow), Capacitor is
+//  absent, so the Hint button is hidden and no fake-ad overlay
+//  fires.
+//
+//  If you ever want to force-enable in a browser to test the
+//  simulated 5s overlay flow, change the right side of the
+//  assignment to `true`.
 // ============================================================
 (function (global) {
   'use strict';
 
-  // Single source of truth. Search the codebase for ADS_ENABLED when
-  // turning ads on — there's only this one site to edit.
-  const ADS_ENABLED = false;
+  const ADS_ENABLED = !!(typeof window !== 'undefined' && window.Capacitor);
 
   // Touch + UA + width detection. Cached after first call so it can't
   // flip mid-session (a dock or external monitor toggle would otherwise

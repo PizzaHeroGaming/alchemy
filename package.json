@@ -1,0 +1,19 @@
+{
+  "name": "athanor",
+  "version": "1.0.0",
+  "description": "Athanor: Alchemy Merge — a Pizza Hero Gaming project.",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build-www.js",
+    "sync": "npm run build && npx cap sync android",
+    "open:android": "npx cap open android",
+    "android": "npm run sync && npm run open:android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/core": "^6.1.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.1.2"
+  }
+}

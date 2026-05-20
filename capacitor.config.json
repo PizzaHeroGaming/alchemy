@@ -1,0 +1,13 @@
+{
+  "appId": "com.pizzaherogaming.athanor",
+  "appName": "Athanor: Alchemy Merge",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": true
+  }
+}
