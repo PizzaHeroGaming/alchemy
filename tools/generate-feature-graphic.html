@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Generate feature-graphic.png — Athanor</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=EB+Garamond:ital@0;1&display=swap" rel="stylesheet">
+
+<style>
+  body {
+    background: #0a0612;
+    color: #f0e4c8;
+    font-family: system-ui, sans-serif;
+    text-align: center;
+    padding: 32px 16px 60px;
+    margin: 0;
+    min-height: 100vh;
+  }
+  h1 { color: #ffd23f; letter-spacing: 0.1em; font-weight: 600; }
+  p  { color: #b8a989; line-height: 1.6; max-width: 720px; margin: 12px auto; }
+  canvas {
+    width: 1024px;
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #3a285a;
+    margin: 18px auto;
+    display: block;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+  }
+  button {
+    background: linear-gradient(180deg, #ffe27a, #ffd23f 60%, #cf9a16);
+    color: #0a0612;
+    border: 0;
+    border-radius: 6px;
+    padding: 14px 28px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin: 10px;
+    box-shadow: 0 6px 18px rgba(255, 210, 63, 0.32);
+  }
+  button:hover { filter: brightness(1.08); }
+  .hint { color: #8b7e6a; font-size: 12px; margin-top: 24px; }
+  .err  { color: #ff7a7a; font-size: 14px; margin-top: 10px; }
+  .safe-zone-note {
+    font-size: 11px;
+    color: #8b7e6a;
+    margin-top: -6px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Generate feature-graphic.png</h1>
+<p>1024×500 banner for the top of the Google Play Store listing page. Keeps critical content within the central safe zone (Play crops/scales for different screen ratios). Click below to download.</p>
+
+<canvas id="canvas" width="1024" height="500"></canvas>
+<p class="safe-zone-note">Preview above is real size. The faint dashed line in dev mode shows Play's safe-content zone.</p>
+
+<button id="btn-download">Download feature-graphic.png</button>
+<div id="status" class="hint">Loading fonts…</div>
+
+<script>
+(async function () {
+  const statusEl = document.getElementById('status');
+  const canvas   = document.getElementById('canvas');
+  const ctx      = canvas.getContext('2d');
+
+  // ---- 1. Wait for Cinzel + EB Garamond to load before drawing text ----
+  try {
+    await document.fonts.load("700 80px Cinzel");
+    await document.fonts.load("italic 24px 'EB Garamond'");
+    await document.fonts.load("700 11px Cinzel");
+    statusEl.textContent = 'Rendering…';
+  } catch (e) {
+    statusEl.className = 'err';
+    statusEl.textContent = 'Font load failed — banner may use fallback fonts.';
+  }
+
+  const W = 1024, H = 500;
+
+  // ---- 2. Background: deep radial gradient + warm glow ----
+  const bg = ctx.createRadialGradient(W/2, H/2, 80, W/2, H/2, 600);
+  bg.addColorStop(0,    '#1a0e1f');
+  bg.addColorStop(0.55, '#0a0612');
+  bg.addColorStop(1,    '#03020a');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Warm candlelit glow behind centerpiece
+  const glow = ctx.createRadialGradient(W/2, H/2 + 20, 50, W/2, H/2 + 20, 380);
+  glow.addColorStop(0,    'rgba(255,168,60,0.20)');
+  glow.addColorStop(0.4,  'rgba(255,130,40,0.07)');
+  glow.addColorStop(1,    'rgba(255,130,40,0)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, W, H);
+
+  // ---- 3. Ember particles scattered across the field ----
+  ctx.fillStyle = '#ffd23f';
+  const embers = [
+    [80,  120, 2.2, 0.7],  [180, 380, 1.6, 0.5], [300, 80,  2.1, 0.65],
+    [320, 420, 1.8, 0.55], [100, 250, 1.3, 0.4], [900, 100, 2.0, 0.7],
+    [850, 380, 1.6, 0.55], [970, 260, 1.9, 0.5], [730, 50,  1.4, 0.45],
+    [780, 450, 2.1, 0.65], [560, 70,  1.5, 0.4], [460, 450, 1.6, 0.45],
+    [620, 430, 1.3, 0.4],  [80,  450, 1.4, 0.4], [990, 440, 1.5, 0.45]
+  ];
+  for (const [x, y, r, a] of embers) {
+    ctx.globalAlpha = a;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  // ---- 4. Alembic centerpiece (left half), drawn from SVG inline ----
+  // Embedded SVG so this works from file:// with no fetches.
+  const ALEMBIC_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+    <defs>
+      <linearGradient id="flask" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%"  stop-color="#fff4c4"/>
+        <stop offset="40%" stop-color="#ffd23f"/>
+        <stop offset="100%" stop-color="#8a5a14"/>
+      </linearGradient>
+      <radialGradient id="potion" cx="50%" cy="60%" r="55%">
+        <stop offset="0%"  stop-color="#a6f3ff"/>
+        <stop offset="60%" stop-color="#4a8fd5"/>
+        <stop offset="100%" stop-color="#1f2a5c"/>
+      </radialGradient>
+      <linearGradient id="goldFill" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%"  stop-color="#fff0a8"/>
+        <stop offset="35%" stop-color="#ffd23f"/>
+        <stop offset="100%" stop-color="#a87a14"/>
+      </linearGradient>
+      <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="6" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+    <polygon points="256,80 396,160 396,320 256,400 116,320 116,160" fill="none" stroke="#3d2a55" stroke-width="3" opacity="0.7"/>
+    <polygon points="256,110 372,176 372,304 256,370 140,304 140,176" fill="none" stroke="#523872" stroke-width="2" opacity="0.55"/>
+    <g filter="url(#softGlow)">
+      <path d="M226 130 h60 v8 h-60 z" fill="url(#flask)" stroke="#5a3a10" stroke-width="3"/>
+      <path d="M230 138 h52 v52 h-52 z" fill="url(#flask)" stroke="#5a3a10" stroke-width="3"/>
+      <path d="M230 190 C 230 215, 150 240, 150 320 C 150 380, 200 415, 256 415 C 312 415, 362 380, 362 320 C 362 240, 282 215, 282 190 Z" fill="rgba(255,255,255,0.06)" stroke="url(#flask)" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M242 252 C 220 270, 168 290, 168 332 C 168 372, 208 400, 256 400 C 304 400, 344 372, 344 332 C 344 290, 292 270, 270 252 Z" fill="url(#potion)"/>
+      <ellipse cx="208" cy="310" rx="36" ry="8" fill="#cfeeff" opacity="0.55"/>
+      <circle cx="222" cy="345" r="6" fill="#cfeeff" opacity="0.85"/>
+      <circle cx="244" cy="368" r="4" fill="#cfeeff" opacity="0.7"/>
+      <circle cx="280" cy="352" r="5" fill="#cfeeff" opacity="0.8"/>
+    </g>
+    <rect x="222" y="118" width="68" height="18" rx="5" fill="url(#goldFill)" stroke="#5a3a10" stroke-width="3"/>
+    <g fill="url(#goldFill)">
+      <polygon points="120,200 124,212 136,216 124,220 120,232 116,220 104,216 116,212"/>
+      <polygon points="402,210 405,219 414,222 405,225 402,234 399,225 390,222 399,219"/>
+      <polygon points="170,90 173,99 182,102 173,105 170,114 167,105 158,102 167,99"/>
+      <polygon points="354,418 357,427 366,430 357,433 354,442 351,433 342,430 351,427"/>
+    </g>
+  </svg>`;
+
+  function loadSvgAsImage(markup) {
+    return new Promise((resolve, reject) => {
+      const blob = new Blob([markup], { type: 'image/svg+xml;charset=utf-8' });
+      const url  = URL.createObjectURL(blob);
+      const img  = new Image();
+      img.onload  = () => { URL.revokeObjectURL(url); resolve(img); };
+      img.onerror = (e) => { URL.revokeObjectURL(url); reject(e); };
+      img.src = url;
+    });
+  }
+
+  try {
+    const alembicImg = await loadSvgAsImage(ALEMBIC_SVG);
+    // Draw the alembic centered on the LEFT third — title sits to the right.
+    const alembicSize = 380;
+    ctx.drawImage(alembicImg, 80, (H - alembicSize) / 2, alembicSize, alembicSize);
+  } catch (e) {
+    statusEl.className = 'err';
+    statusEl.textContent = 'Alembic render failed: ' + e;
+  }
+
+  // ---- 5. Title typography ----
+  // Big "ATHANOR" in Cinzel with a vertical gold gradient fill.
+  const titleY = 220;
+  const titleX = 620;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+
+  // Title shadow for depth
+  ctx.shadowColor = 'rgba(255, 210, 63, 0.35)';
+  ctx.shadowBlur  = 22;
+  ctx.shadowOffsetY = 0;
+
+  // Vertical gold gradient for title
+  const titleGrad = ctx.createLinearGradient(0, titleY - 70, 0, titleY + 10);
+  titleGrad.addColorStop(0,    '#fff4c4');
+  titleGrad.addColorStop(0.5,  '#ffd23f');
+  titleGrad.addColorStop(1,    '#a87a14');
+  ctx.fillStyle = titleGrad;
+  ctx.font = '700 84px Cinzel, serif';
+  // Approximate letter-spacing for canvas (no native support pre-2024 chrome —
+  // most browsers now support `letterSpacing` on the canvas context).
+  ctx.letterSpacing = '14px';
+  ctx.fillText('ATHANOR', titleX, titleY);
+  ctx.letterSpacing = '0';
+
+  // Decorative rule beneath the title
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = '#d8a838';
+  ctx.lineWidth = 2;
+  ctx.globalAlpha = 0.55;
+  ctx.beginPath();
+  ctx.moveTo(titleX - 110, titleY + 28);
+  ctx.lineTo(titleX + 110, titleY + 28);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+
+  // Subtitle: "Forge the Unknown" in italic EB Garamond
+  ctx.fillStyle = '#d8c9ec';
+  ctx.font = 'italic 28px "EB Garamond", Georgia, serif';
+  ctx.fillText('Forge the Unknown', titleX, titleY + 70);
+
+  // Small tagline below
+  ctx.fillStyle = '#b8a989';
+  ctx.font = '700 14px Cinzel, serif';
+  ctx.letterSpacing = '4px';
+  ctx.fillText('190 ELEMENTS · 187 RECIPES · 8 RANKS', titleX, titleY + 110);
+  ctx.letterSpacing = '0';
+
+  // ---- 6. Studio attribution (bottom-right corner, in safe zone) ----
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#8b7e6a';
+  ctx.font = '700 11px Cinzel, serif';
+  ctx.letterSpacing = '3px';
+  ctx.fillText('A PIZZA HERO GAMING PROJECT', W - 30, H - 24);
+  ctx.letterSpacing = '0';
+
+  statusEl.textContent = 'Ready. Click Download.';
+
+  // ---- 7. Download handler ----
+  document.getElementById('btn-download').addEventListener('click', () => {
+    canvas.toBlob((blob) => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'feature-graphic.png';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      statusEl.textContent = 'Saved feature-graphic.png.';
+    }, 'image/png');
+  });
+})();
+</script>
+
+</body>
+</html>
