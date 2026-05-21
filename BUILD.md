@@ -27,6 +27,42 @@ After `npx cap add android` finishes:
 4. Edit `android/app/build.gradle` per
    `android-templates/build.gradle.patch.md`
 
+## Required SDK / AGP / Gradle versions
+
+Capacitor's scaffolding ships with older defaults. Play Console now requires
+targetSdk 35, and that needs newer Android Gradle Plugin + Gradle wrapper.
+Bump these in the freshly-generated `android/` folder:
+
+1. **`android/variables.gradle`** — set `compileSdkVersion = 35` and
+   `targetSdkVersion = 35` (Capacitor's default is 34, which Play rejects).
+2. **`android/build.gradle`** — bump the AGP classpath to
+   `com.android.tools.build:gradle:8.6.1` (AGP 8.2 only supports compileSdk 34).
+3. **`android/gradle/wrapper/gradle-wrapper.properties`** — bump the
+   `distributionUrl` to `gradle-8.9-all.zip` (AGP 8.6 requires Gradle 8.7+).
+
+After these edits, Android Studio will prompt to Sync Gradle. Accept. First
+sync downloads the new Gradle + AGP (~100 MB) and takes 2-5 minutes.
+
+## Version codes
+
+Every AAB uploaded to Play needs a unique, monotonically increasing
+`versionCode` in `android/app/build.gradle`. Once an AAB has been uploaded
+to ANY track (internal, closed, production) with versionCode N, you can
+never reuse N again — even for a rebuild of the same release.
+
+Bump it for every upload:
+
+```groovy
+defaultConfig {
+    ...
+    versionCode 3        // increment +1 for each new build
+    versionName "1.0.1"  // human-visible, semver-style is fine
+}
+```
+
+`versionName` is the user-visible string ("v1.0.1"); only bump it when the
+release is a real version change. `versionCode` MUST increment every time.
+
 ## Run it
 
 ```powershell
