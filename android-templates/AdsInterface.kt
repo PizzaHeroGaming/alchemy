@@ -9,6 +9,7 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.RequestConfiguration
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 
@@ -50,6 +51,18 @@ class AdsInterface(
 
         private val REWARDED_AD_UNIT_ID: String
             get() = if (USE_TEST_ADS) TEST_REWARDED_AD_UNIT_ID else PROD_REWARDED_AD_UNIT_ID
+
+        // Devices that should always receive test ads, even when the
+        // production ad unit ID is configured. Crucial: keep your own
+        // phones in this list so accidental self-clicks on a real ad
+        // can't get the AdMob account flagged or suspended. Logcat
+        // prints the ID needed here on first run — copy from a line
+        // like:
+        //   Use RequestConfiguration.Builder().setTestDeviceIds(
+        //     Arrays.asList("XXXXXXXX...")) to get test ads on this device.
+        private val TEST_DEVICE_IDS = listOf(
+            "998F7B531862D3F0969C32837B395A22"   // YourPizzaHero — Pixel 8 Pro
+        )
     }
 
     private var rewardedAd: RewardedAd? = null
@@ -57,8 +70,15 @@ class AdsInterface(
     private var rewardEarned = false
 
     init {
+        // Configure test devices BEFORE initializing — this way the
+        // very first ad request honors the test-device list.
+        val configuration = RequestConfiguration.Builder()
+            .setTestDeviceIds(TEST_DEVICE_IDS)
+            .build()
+        MobileAds.setRequestConfiguration(configuration)
+
         MobileAds.initialize(activity) {
-            Log.d(TAG, "MobileAds initialized")
+            Log.d(TAG, "MobileAds initialized (${TEST_DEVICE_IDS.size} test devices registered)")
             preloadRewarded()
         }
     }
