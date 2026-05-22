@@ -13,11 +13,17 @@
 
   const KEY_MUTED  = 'alchemy_muted';
   const KEY_VOLUME = 'alchemy_volume';
+  const KEY_MUSIC_MUTED  = 'alchemy_music_muted';
+  const KEY_MUSIC_VOLUME = 'alchemy_music_volume';
 
   let ctx = null;
   let masterGain = null;
   let muted = false;
   let volume = 0.5;
+
+  // Music settings (independent from SFX)
+  let musicMuted  = false;
+  let musicVolume = 0.35;     // a touch under SFX so it sits in the back
 
   // ---- Pre-recorded sting buffers ---------------------------------------
   // Loaded once after the first user gesture (when the AudioContext goes
@@ -58,36 +64,108 @@
     return true;
   }
 
-  // ---- Background music slot (scaffolded, no track loaded yet) ----------
-  // When an ambient track lands, set MUSIC_TRACK_URL and the music will
-  // start on the first user gesture. The audio routes through musicGain
-  // so it can be ducked independently from the SFX bus later if desired.
-  let MUSIC_TRACK_URL = null;       // e.g. 'assets/audio/ambient.ogg'
+  // ---- Background music playlist --------------------------------------
+  // Three Kevin MacLeod ambient tracks, shuffled — when one ends, advance
+  // to a different one (same track won't play twice in a row). Routed
+  // through musicGain so volume is independently adjustable from SFX.
+  const MUSIC_TRACKS = [
+    'assets/audio/southern-gothic.mp3',
+    'assets/audio/kalimba-relaxation.mp3',
+    'assets/audio/night-vigil.mp3',
+  ];
   let musicElement = null;
   let musicSource  = null;
   let musicGain    = null;
+  let musicTrackIndex = -1;
+  let musicStarted = false;
 
   function ensureMusicStarted() {
-    if (!MUSIC_TRACK_URL || musicElement || !ctx) return;
+    if (musicStarted || !ctx || musicMuted) return;
+    if (MUSIC_TRACKS.length === 0) return;
+    musicStarted = true;
     try {
-      musicElement = new Audio(MUSIC_TRACK_URL);
-      musicElement.loop = true;
-      musicElement.preload = 'auto';
       musicGain = ctx.createGain();
-      musicGain.gain.value = 0.55;   // tuned conservatively under SFX
-      musicSource = ctx.createMediaElementSource(musicElement);
-      musicSource.connect(musicGain).connect(masterGain);
-      musicElement.play().catch(() => { /* autoplay blocked — ok */ });
+      musicGain.gain.value = musicVolume;
+      musicGain.connect(masterGain);
     } catch (e) {
-      console.warn('[sound] music init failed:', e);
+      console.warn('[sound] music gain init failed:', e);
+      musicStarted = false;
+      return;
+    }
+    // Random starting track so the same one doesn't play first every launch.
+    musicTrackIndex = Math.floor(Math.random() * MUSIC_TRACKS.length);
+    playCurrentTrack();
+  }
+
+  function playCurrentTrack() {
+    if (!ctx || musicTrackIndex < 0) return;
+    const url = MUSIC_TRACKS[musicTrackIndex];
+    try {
+      // Tear down any previous element first.
+      if (musicElement) {
+        try { musicElement.pause(); } catch (e) {}
+        musicElement.src = '';
+      }
+      if (musicSource) {
+        try { musicSource.disconnect(); } catch (e) {}
+        musicSource = null;
+      }
+      musicElement = new Audio(url);
+      musicElement.preload = 'auto';
+      musicElement.addEventListener('ended', advanceMusicTrack);
+      // Route through WebAudio so we share gain control with SFX.
+      musicSource = ctx.createMediaElementSource(musicElement);
+      musicSource.connect(musicGain);
+      musicElement.play().catch(() => {
+        // Autoplay blocked or aborted — fine, will retry on next user gesture.
+      });
+    } catch (e) {
+      console.warn('[sound] music play failed:', e);
     }
   }
+
+  function advanceMusicTrack() {
+    // Avoid same-track-back-to-back by picking a different index when possible.
+    if (MUSIC_TRACKS.length > 1) {
+      let next = musicTrackIndex;
+      while (next === musicTrackIndex) {
+        next = Math.floor(Math.random() * MUSIC_TRACKS.length);
+      }
+      musicTrackIndex = next;
+    }
+    playCurrentTrack();
+  }
+
+  // Music control API — independent from SFX mute/volume
+  function setMusicMuted(m) {
+    musicMuted = !!m;
+    try { localStorage.setItem(KEY_MUSIC_MUTED, musicMuted ? '1' : '0'); } catch (e) {}
+    if (musicMuted) {
+      if (musicElement) try { musicElement.pause(); } catch (e) {}
+    } else if (!musicStarted) {
+      ensureMusicStarted();
+    } else if (musicElement) {
+      musicElement.play().catch(() => {});
+    }
+  }
+  function isMusicMuted() { return musicMuted; }
+  function setMusicVolume(v) {
+    musicVolume = Math.max(0, Math.min(1, v));
+    if (musicGain) musicGain.gain.value = musicVolume;
+    try { localStorage.setItem(KEY_MUSIC_VOLUME, String(musicVolume)); } catch (e) {}
+  }
+  function getMusicVolume() { return musicVolume; }
 
   function init() {
     try { muted  = localStorage.getItem(KEY_MUTED)  === '1'; } catch (e) {}
     try {
       const v = parseFloat(localStorage.getItem(KEY_VOLUME));
       if (!isNaN(v) && v >= 0 && v <= 1) volume = v;
+    } catch (e) {}
+    try { musicMuted = localStorage.getItem(KEY_MUSIC_MUTED) === '1'; } catch (e) {}
+    try {
+      const mv = parseFloat(localStorage.getItem(KEY_MUSIC_VOLUME));
+      if (!isNaN(mv) && mv >= 0 && mv <= 1) musicVolume = mv;
     } catch (e) {}
 
     // Resume audio context on first user gesture (browsers require this).
@@ -329,6 +407,7 @@
   global.Sound = {
     init, ensureContext,
     setMuted, isMuted, setVolume, getVolume,
+    setMusicMuted, isMusicMuted, setMusicVolume, getMusicVolume,
     slotFill, channelIgnite, brewSuccess, brewFail, rankUp, tap, ui,
   };
 })(window);

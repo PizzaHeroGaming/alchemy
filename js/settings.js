@@ -61,6 +61,19 @@
       b.classList.toggle('active', wantOn === soundOn);
     }
 
+    // Music mute state — same pattern, independent toggle.
+    const musicOn = !(window.Sound && Sound.isMusicMuted && Sound.isMusicMuted());
+    for (const b of document.querySelectorAll('#music-options .settings-opt')) {
+      const wantOn = b.dataset.music === 'on';
+      b.classList.toggle('active', wantOn === musicOn);
+    }
+    // Music volume slider — sync its position + label from Sound module.
+    const vol = (window.Sound && Sound.getMusicVolume) ? Sound.getMusicVolume() : 0.35;
+    const slider = document.getElementById('music-volume');
+    const label  = document.getElementById('music-volume-value');
+    if (slider) slider.value = Math.round(vol * 100);
+    if (label)  label.textContent = Math.round(vol * 100) + '%';
+
     // Update active state on settings buttons (if modal exists).
     for (const b of document.querySelectorAll('#layout-options .settings-opt')) {
       b.classList.toggle('active', b.dataset.layout === layout);
@@ -123,7 +136,26 @@
         }
         apply();
       }
+      if (opt.dataset.music) {
+        const wantOn = opt.dataset.music === 'on';
+        if (window.Sound && Sound.setMusicMuted) {
+          Sound.setMusicMuted(!wantOn);
+        }
+        apply();
+      }
     });
+
+    // Live music-volume slider — update on every drag tick so the player
+    // hears the change immediately instead of only on commit.
+    const slider = document.getElementById('music-volume');
+    if (slider) {
+      slider.addEventListener('input', () => {
+        const v = parseInt(slider.value, 10) / 100;
+        if (window.Sound && Sound.setMusicVolume) Sound.setMusicVolume(v);
+        const label = document.getElementById('music-volume-value');
+        if (label) label.textContent = Math.round(v * 100) + '%';
+      });
+    }
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && !modal.classList.contains('hidden')) modal.classList.add('hidden');

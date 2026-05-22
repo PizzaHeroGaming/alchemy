@@ -18,16 +18,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=EB+Garamond:ital@0;1&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="css/splash.css?v=90">
-  <link rel="stylesheet" href="css/main.css?v=90">
-  <link rel="stylesheet" href="css/icons.css?v=90">
-  <link rel="stylesheet" href="css/workspace.css?v=90">
-  <link rel="stylesheet" href="css/circle.css?v=90">
-  <link rel="stylesheet" href="css/themes.css?v=90">
-  <link rel="stylesheet" href="css/seasons.css?v=90">
-  <link rel="stylesheet" href="css/lineage.css?v=90">
-  <link rel="stylesheet" href="css/hints.css?v=90">
-  <link rel="stylesheet" href="css/title.css?v=90">
+  <link rel="stylesheet" href="css/splash.css?v=91">
+  <link rel="stylesheet" href="css/main.css?v=91">
+  <link rel="stylesheet" href="css/icons.css?v=91">
+  <link rel="stylesheet" href="css/workspace.css?v=91">
+  <link rel="stylesheet" href="css/circle.css?v=91">
+  <link rel="stylesheet" href="css/themes.css?v=91">
+  <link rel="stylesheet" href="css/seasons.css?v=91">
+  <link rel="stylesheet" href="css/lineage.css?v=91">
+  <link rel="stylesheet" href="css/hints.css?v=91">
+  <link rel="stylesheet" href="css/title.css?v=91">
 </head>
 <body>
   <div id="app">
@@ -201,8 +201,8 @@
         <button class="modal-close" data-close aria-label="Close">✕</button>
         <h2 id="settings-title" class="modal-title">Settings</h2>
         <div class="modal-body">
-          <h3>Sound</h3>
-          <p class="settings-help">Procedural chimes for slot fills, brews, and rank-ups. Muted preference persists across visits.</p>
+          <h3>Sound effects</h3>
+          <p class="settings-help">Procedural chimes for slot fills, brews, and rank-ups.</p>
           <div class="settings-options" id="sound-options">
             <button type="button" class="settings-opt small" data-sound="on">
               <div class="settings-opt-label">On</div>
@@ -210,6 +210,24 @@
             <button type="button" class="settings-opt small" data-sound="off">
               <div class="settings-opt-label">Mute</div>
             </button>
+          </div>
+
+          <h3>Music</h3>
+          <p class="settings-help">Ambient soundtrack — three tracks shuffle as you play.</p>
+          <div class="settings-options" id="music-options">
+            <button type="button" class="settings-opt small" data-music="on">
+              <div class="settings-opt-label">On</div>
+            </button>
+            <button type="button" class="settings-opt small" data-music="off">
+              <div class="settings-opt-label">Mute</div>
+            </button>
+          </div>
+          <div class="settings-slider-wrap">
+            <label for="music-volume" class="settings-slider-label">Volume</label>
+            <input type="range" id="music-volume" class="settings-slider"
+                   min="0" max="100" step="1" value="35"
+                   aria-label="Music volume">
+            <span id="music-volume-value" class="settings-slider-value">35%</span>
           </div>
 
           <h3>Layout</h3>
@@ -327,8 +345,9 @@
           </p>
           <p class="credits credits-music">
             <span class="credits-label">Music</span><br>
-            <em>"Discovery Hit"</em> by <strong>Kevin MacLeod</strong>
+            All music by <strong>Kevin MacLeod</strong>
             (<a href="https://incompetech.com" target="_blank" rel="noopener noreferrer">incompetech.com</a>)<br>
+            <em>"Discovery Hit"</em> · <em>"Southern Gothic"</em> · <em>"Kalimba Relaxation Music"</em> · <em>"Night Vigil"</em><br>
             <span class="credits-dim">Licensed under Creative Commons: By Attribution 4.0</span>
           </p>
           <p class="credits credits-thanks">
@@ -347,30 +366,30 @@
 
   </div>
 
-  <script src="js/splash.js?v=90"></script>
-  <script src="data/elements.js?v=90"></script>
-  <script src="data/recipes.js?v=90"></script>
-  <script src="data/multi_recipes.js?v=90"></script>
-  <script src="js/storage.js?v=90"></script>
-  <script src="js/state.js?v=90"></script>
-  <script src="js/recipes.js?v=90"></script>
-  <script src="js/multi_recipes.js?v=90"></script>
-  <script src="js/ranks.js?v=90"></script>
-  <script src="js/icons.js?v=90"></script>
-  <script src="js/progress.js?v=90"></script>
-  <script src="js/saves.js?v=90"></script>
-  <script src="js/tutorial.js?v=90"></script>
-  <script src="js/lineage.js?v=90"></script>
-  <script src="js/graph.js?v=90"></script>
-  <script src="js/ads.js?v=90"></script>
-  <script src="js/hints.js?v=90"></script>
-  <script src="js/seasons.js?v=90"></script>
-  <script src="js/sound.js?v=90"></script>
-  <script src="js/settings.js?v=90"></script>
-  <script src="js/sidebar.js?v=90"></script>
-  <script src="js/circle.js?v=90"></script>
-  <script src="js/workspace.js?v=90"></script>
-  <script src="js/title.js?v=90"></script>
-  <script src="js/main.js?v=90"></script>
+  <script src="js/splash.js?v=91"></script>
+  <script src="data/elements.js?v=91"></script>
+  <script src="data/recipes.js?v=91"></script>
+  <script src="data/multi_recipes.js?v=91"></script>
+  <script src="js/storage.js?v=91"></script>
+  <script src="js/state.js?v=91"></script>
+  <script src="js/recipes.js?v=91"></script>
+  <script src="js/multi_recipes.js?v=91"></script>
+  <script src="js/ranks.js?v=91"></script>
+  <script src="js/icons.js?v=91"></script>
+  <script src="js/progress.js?v=91"></script>
+  <script src="js/saves.js?v=91"></script>
+  <script src="js/tutorial.js?v=91"></script>
+  <script src="js/lineage.js?v=91"></script>
+  <script src="js/graph.js?v=91"></script>
+  <script src="js/ads.js?v=91"></script>
+  <script src="js/hints.js?v=91"></script>
+  <script src="js/seasons.js?v=91"></script>
+  <script src="js/sound.js?v=91"></script>
+  <script src="js/settings.js?v=91"></script>
+  <script src="js/sidebar.js?v=91"></script>
+  <script src="js/circle.js?v=91"></script>
+  <script src="js/workspace.js?v=91"></script>
+  <script src="js/title.js?v=91"></script>
+  <script src="js/main.js?v=91"></script>
 </body>
 </html>

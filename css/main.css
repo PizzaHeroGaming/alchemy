@@ -604,6 +604,60 @@ button.danger:hover { background: rgba(196,49,74,0.15); }
 .settings-opt:hover { border-color: var(--gold); background: var(--bg-mid); box-shadow: none; }
 .settings-opt.active { border-color: var(--gold); background: rgba(216,168,56,0.12); box-shadow: var(--glow); }
 .settings-opt.small { min-height: 48px; justify-content: center; padding: 8px; }
+
+/* Music volume slider — sits below the On/Mute buttons in the Music
+   settings group. Gold-tinted thumb to match the rest of the theme. */
+.settings-slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 6px 2px 14px;
+}
+.settings-slider-label {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  flex-shrink: 0;
+}
+.settings-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+.settings-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: linear-gradient(180deg, #ffe27a, var(--gold) 60%, #cf9a16);
+  border: 1px solid #5a3a10;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+.settings-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: linear-gradient(180deg, #ffe27a, var(--gold) 60%, #cf9a16);
+  border: 1px solid #5a3a10;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+.settings-slider-value {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  color: var(--gold-bright);
+  min-width: 38px;
+  text-align: right;
+}
 .settings-opt-label {
   font-family: 'Cinzel', serif;
   font-size: 10px;
