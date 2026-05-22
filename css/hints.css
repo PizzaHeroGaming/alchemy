@@ -64,12 +64,40 @@
   border: 1px solid var(--accent, #ffd23f);
   margin-top: 14px;
 }
-.hint-watch:hover,
-.hint-retry:hover,
-.hint-begin:hover  { filter: brightness(1.12); }
-.hint-watch:active,
-.hint-retry:active,
-.hint-begin:active { transform: translateY(1px); }
+/* Redeclare each button's background in every interactive state so the
+   global `button:hover { background: var(--bg-mid) }` from main.css can't
+   win the cascade and turn the button dark when pressed. Same fix we did
+   for the title screen's Enter the Circle button. */
+.hint-watch:hover, .hint-watch:focus, .hint-watch:focus-visible {
+  background: var(--accent, #ffd23f);
+  filter: brightness(1.12);
+  outline: none;
+}
+.hint-watch:active {
+  background: var(--accent, #ffd23f);
+  filter: brightness(0.96);
+  transform: translateY(1px);
+}
+.hint-retry:hover, .hint-retry:focus, .hint-retry:focus-visible {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--ink, #fff);
+  filter: brightness(1.12);
+  outline: none;
+}
+.hint-retry:active {
+  background: rgba(255, 255, 255, 0.07);
+  transform: translateY(1px);
+}
+.hint-begin:hover, .hint-begin:focus, .hint-begin:focus-visible {
+  background: rgba(255, 210, 63, 0.18);
+  color: var(--accent, #ffd23f);
+  filter: brightness(1.12);
+  outline: none;
+}
+.hint-begin:active {
+  background: rgba(255, 210, 63, 0.18);
+  transform: translateY(1px);
+}
 
 .hint-recipe {
   display: flex;

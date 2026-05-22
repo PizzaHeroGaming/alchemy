@@ -47,7 +47,7 @@
       showSteps([
         {
           title: 'Pairs still work',
-          body: 'Your circle holds three slots now — but the smaller brews still matter. Fill any two slots and then tap the glowing crucible at the centre to fire the attempt.',
+          body: 'Your circle holds three slots now — but the smaller brews still matter. Fill any two slots and then tap the glowing crucible at the center to fire the attempt.',
           target: '#crucible',
           side: 'bottom',
         },
