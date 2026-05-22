@@ -26,16 +26,26 @@
     contentEl = document.getElementById('hint-content');
     if (!buttonEl || !modalEl) return;
 
-    // Hide the Hint button unless BOTH conditions are met:
-    //   1. We're on a mobile/wrapped build (so ads can actually serve).
-    //   2. The ADS_ENABLED master flag in ads.js is true.
-    // Until AdMob is fully provisioned, ADS_ENABLED stays false and the
-    // button disappears — testers don't see a non-functional "Watch ad"
-    // promise. Flipping the flag in ads.js turns the whole feature back on.
-    if (!window.GameAds || !GameAds.isMobile() || !GameAds.adsEnabled()) {
+    // Hide the Hint button unless ALL of:
+    //   1. window.GameAds module is loaded (ads.js ran).
+    //   2. isMobile() returns true (touch + UA/narrow).
+    //   3. adsEnabled() returns true (Capacitor or AndroidAds present).
+    // Diagnostic logging surfaces in Logcat via Chrome remote debugging
+    // when something goes wrong on a real device.
+    const checks = {
+      gameAds:    !!window.GameAds,
+      isMobile:   !!(window.GameAds && GameAds.isMobile()),
+      adsEnabled: !!(window.GameAds && GameAds.adsEnabled()),
+      capacitor:  !!window.Capacitor,
+      androidAds: !!window.AndroidAds,
+    };
+    console.log('[Hints] init checks:', checks);
+    if (!checks.gameAds || !checks.isMobile || !checks.adsEnabled) {
+      console.log('[Hints] button hidden — failed gate');
       buttonEl.classList.add('hidden');
       return;
     }
+    console.log('[Hints] button visible');
 
     buttonEl.addEventListener('click', openModal);
     modalEl.addEventListener('click', (e) => {

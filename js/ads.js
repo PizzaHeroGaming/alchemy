@@ -8,21 +8,27 @@
 //
 // ============================================================
 //  MASTER ENABLE FLAG
-//  Auto-detects the Capacitor wrapper. On a wrapped Android build
-//  window.Capacitor is injected by the native shell, so the Hint
-//  button appears and showRewarded() routes through the Kotlin
-//  AdsInterface. In a plain browser (testing flow), Capacitor is
-//  absent, so the Hint button is hidden and no fake-ad overlay
-//  fires.
+//  Auto-detects the Capacitor wrapper at RUNTIME (not load-time)
+//  so async-injected native bridges still resolve cleanly. On a
+//  wrapped Android build window.Capacitor is injected by the
+//  native shell — sometimes before our scripts run, sometimes
+//  just after. Evaluating each call sidesteps the race.
 //
-//  If you ever want to force-enable in a browser to test the
-//  simulated 5s overlay flow, change the right side of the
-//  assignment to `true`.
+//  In a plain browser (web testing flow), neither window.Capacitor
+//  nor window.AndroidAds exists, so the Hint button stays hidden
+//  and no fake-ad overlay fires.
+//
+//  Force-enable for browser flow testing by uncommenting the
+//  return true below.
 // ============================================================
 (function (global) {
   'use strict';
 
-  const ADS_ENABLED = !!(typeof window !== 'undefined' && window.Capacitor);
+  function adsEnabled() {
+    // return true;  // <-- uncomment to force-enable in a browser
+    return typeof window !== 'undefined' &&
+           (!!window.Capacitor || !!window.AndroidAds);
+  }
 
   // Touch + UA + width detection. Cached after first call so it can't
   // flip mid-session (a dock or external monitor toggle would otherwise
@@ -90,8 +96,6 @@
     }, 1000);
     overlay.querySelector('.fake-ad-skip').addEventListener('click', () => finish(false));
   }
-
-  function adsEnabled() { return ADS_ENABLED; }
 
   global.GameAds = { isMobile, showRewarded, nativeAvailable, adsEnabled };
 })(window);
