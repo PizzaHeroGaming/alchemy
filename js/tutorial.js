@@ -22,7 +22,7 @@
     showSteps([
       {
         title: 'Welcome to the Circle',
-        body: 'Drag elements from your library on the side — Water, Fire, Earth, Air — and drop each one into an empty slot in the Circle of Binding.',
+        body: 'Tap elements from your library — Water, Fire, Earth, Air — to drop them into the next empty slot of the Circle. Drag for a specific slot, or long-press an element to see how it\'s made.',
         target: '#library-list',
         side: 'left',
       },

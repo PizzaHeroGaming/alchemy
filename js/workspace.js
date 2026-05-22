@@ -94,69 +94,116 @@
     showResetStage(1);
   }
 
-  // --- Library drag → slot --------------------------------------------------
-  // Two interaction models depending on input device. Same intent classifier
-  // as before for touch (long-press OR sideways drag = drag, vertical = scroll).
-  const LONG_PRESS_MS  = 350;
+  // --- Library tile gesture model ------------------------------------------
+  // Quick tap     → Circle.fillNextEmptySlot (the dominant action)
+  // Long-press    → Lineage panel  (secondary "inspect" action)
+  // Sideways drag → drag-to-specific-slot (precision use)
+  // Vertical drag → scroll the library
+  // Right-click   → Lineage panel  (desktop convenience equivalent
+  //                                 to long-press)
+  const LONG_PRESS_MS  = 600;   // hold this long → Lineage instead of tap-fill
   const HORIZ_DRAG_PX  = 12;
   const VERT_SCROLL_PX = 6;
+  const TAP_TIME_MS    = 500;   // pointerup before this counts as a tap
 
   function attachLibraryDragSource(node, elementId) {
     node.addEventListener('pointerdown', (e) => {
       if (e.button !== undefined && e.button !== 0) return;
       const isTouch = e.pointerType !== 'mouse';
 
-      if (!isTouch) {
-        e.preventDefault();
-        beginLibraryDrag(elementId, e.pointerId, e.clientX, e.clientY);
-        return;
-      }
-
       const pointerId = e.pointerId;
       const startX = e.clientX, startY = e.clientY;
+      const startTime = Date.now();
       const scrollContainer = node.closest('#library-list');
       const initialScroll = scrollContainer ? scrollContainer.scrollTop : 0;
-      let mode = null;  // null | 'drag' | 'scroll'
+      // 'pending' = still figuring out what the user wants
+      // 'drag'    = drag-with-ghost flow active
+      // 'scroll'  = list-scroll flow active
+      // 'lineage' = long-press fired, Lineage opened, ignore further motion
+      let mode = 'pending';
 
+      // Long-press timer — fires Lineage if the player holds without
+      // moving significantly. Cancelled if motion or release happens
+      // first.
       const longPressTimer = setTimeout(() => {
-        if (mode !== null) return;
-        mode = 'drag';
-        node.classList.add('lib-pressed');
-        beginLibraryDrag(elementId, pointerId, startX, startY);
+        if (mode !== 'pending') return;
+        mode = 'lineage';
+        node.classList.remove('lib-pressed');
+        if (window.Lineage && Lineage.open) Lineage.open(elementId);
       }, LONG_PRESS_MS);
+
+      // Add the pressed visual feedback. Helps the player feel that the
+      // tap registered before the action fires on release.
+      node.classList.add('lib-pressed');
+
+      // Mouse-only: prevent the native drag-image default. On touch,
+      // calling preventDefault here would block the long-press timer,
+      // so we only call it for mouse.
+      if (!isTouch) e.preventDefault();
 
       function onMove(ev) {
         if (ev.pointerId !== pointerId) return;
+        if (mode !== 'pending' && mode !== 'scroll') return;
         const dx = ev.clientX - startX;
         const dy = ev.clientY - startY;
-        if (mode === null) {
+        if (mode === 'pending') {
+          // Sideways drag → start drag-to-specific-slot
           if (Math.abs(dx) > HORIZ_DRAG_PX && Math.abs(dx) > Math.abs(dy) * 1.2) {
             clearTimeout(longPressTimer);
             mode = 'drag';
-            node.classList.add('lib-pressed');
             beginLibraryDrag(elementId, pointerId, ev.clientX, ev.clientY);
             return;
           }
+          // Vertical drag → list-scroll mode
           if (Math.abs(dy) > VERT_SCROLL_PX) {
             clearTimeout(longPressTimer);
             mode = 'scroll';
+            node.classList.remove('lib-pressed');
+          }
+          // Mouse: any significant movement = drag intent
+          if (!isTouch && (Math.abs(dx) > HORIZ_DRAG_PX || Math.abs(dy) > HORIZ_DRAG_PX)) {
+            clearTimeout(longPressTimer);
+            mode = 'drag';
+            beginLibraryDrag(elementId, pointerId, ev.clientX, ev.clientY);
+            return;
           }
         }
         if (mode === 'scroll' && scrollContainer) {
           scrollContainer.scrollTop = initialScroll - dy;
         }
       }
+
       function onEnd(ev) {
         if (ev.pointerId !== pointerId) return;
         clearTimeout(longPressTimer);
         node.classList.remove('lib-pressed');
         document.removeEventListener('pointermove', onMove);
-        document.removeEventListener('pointerup', onEnd);
+        document.removeEventListener('pointerup',     onEnd);
         document.removeEventListener('pointercancel', onEnd);
+
+        // Quick tap: released before the long-press timer, no motion,
+        // no drag started → fill the next empty circle slot.
+        if (mode === 'pending') {
+          const elapsed = Date.now() - startTime;
+          if (elapsed < TAP_TIME_MS) {
+            if (window.Circle && Circle.fillNextEmptySlot) {
+              Circle.fillNextEmptySlot(elementId);
+            }
+          }
+        }
+        // Other modes (drag/scroll/lineage) handled their own cleanup.
       }
+
       document.addEventListener('pointermove', onMove);
-      document.addEventListener('pointerup', onEnd);
+      document.addEventListener('pointerup',     onEnd);
       document.addEventListener('pointercancel', onEnd);
+    });
+
+    // Right-click → Lineage (desktop). Mirrors the touch long-press
+    // behavior so the secondary action is reachable on every input.
+    node.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      if (window.Lineage && Lineage.open) Lineage.open(elementId);
     });
   }
 

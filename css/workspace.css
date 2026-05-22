@@ -223,6 +223,22 @@ body.layout-flipped #workspace { border-right: none; border-left: 1px solid var(
 #search:focus { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
 #search::placeholder { color: var(--ink-mute); font-style: italic; }
 
+/* Library interaction hint — sits just below the search bar. Two gesture
+   reminders in tiny gold-on-dark type so the player sees it once and
+   internalises it without being shouted at. */
+.library-hint {
+  margin: 0;
+  padding: 4px 14px 8px;
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--parchment-dim, var(--ink-dim));
+  opacity: 0.6;
+  text-align: center;
+  flex-shrink: 0;
+}
+
 /* Sort bar — segmented selector above the category filters. Three
    modes: alphabetical (A–Z), most recent discovery (Recent), and
    group-by-category (By Type). Active mode is highlighted gold. */

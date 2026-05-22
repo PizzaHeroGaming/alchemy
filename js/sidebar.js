@@ -353,13 +353,10 @@
     nm.className = 'name';
     nm.textContent = el.name;
     t.appendChild(nm);
+    // Workspace handles every pointer interaction on library tiles:
+    // quick-tap → fill next empty slot, long-press → Lineage, drag →
+    // drag-to-specific-slot, right-click (desktop) → Lineage.
     Workspace.attachLibraryDragSource(t, el.id);
-    t.addEventListener('click', (e) => {
-      // If a drag-ghost is still around, the player just finished a
-      // drag — don't open lineage in that case.
-      if (document.querySelector('.drag-ghost')) return;
-      if (window.Lineage && Lineage.open) Lineage.open(el.id);
-    });
     return t;
   }
 

@@ -577,6 +577,19 @@
   85%      { transform: translate(-2px, 1px); }
 }
 
+/* "Circle is full" cue — gentler than the fail-shake, no red. Fires
+   when the player taps a library tile but every slot already has an
+   element. Tells them "no room" without overwriting anything. */
+.slot.cant-fill {
+  animation: slot-cant-fill 0.35s ease-out;
+}
+@keyframes slot-cant-fill {
+  0%, 100% { transform: translate(0, 0); }
+  30%      { transform: translate(-3px, 0); }
+  60%      { transform: translate(3px, 0); }
+  85%      { transform: translate(-1px, 0); }
+}
+
 /* Bigger, fuller smoke billowing from a failed brew. */
 .smoke {
   position: absolute;

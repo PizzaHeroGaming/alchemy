@@ -376,6 +376,29 @@
     return true;
   }
 
+  // Tap-to-place entry point. Drops the element into the first empty
+  // slot. If every slot is full, briefly shakes the slots as a "no
+  // room" cue instead of silently overwriting one.
+  function fillNextEmptySlot(elementId) {
+    if (combining) return false;
+    for (let i = 0; i < slots.length; i++) {
+      if (!slots[i].elementId) {
+        fillSlot(i, elementId);
+        return true;
+      }
+    }
+    // Circle is full — visual cue.
+    flashSlotsFull();
+    return false;
+  }
+
+  function flashSlotsFull() {
+    for (const s of slots) s.node.classList.add('cant-fill');
+    setTimeout(() => {
+      for (const s of slots) s.node.classList.remove('cant-fill');
+    }, 400);
+  }
+
   function fillSlot(i, elementId) {
     const s = slots[i];
     const el = State.state.byId.get(elementId);
@@ -771,6 +794,7 @@
     previewSlotAt,
     clearSlotHovers,
     tryFillFromDrop,
+    fillNextEmptySlot,
     isCombining,
   };
 })(window);
