@@ -186,6 +186,53 @@
     document.addEventListener('touchstart',  arm, true);
     document.addEventListener('keydown',     arm, true);
     document.addEventListener('click',       arm, true);
+
+    setupVisibilityHandling();
+  }
+
+  // Pause music + suspend the audio context when the app backgrounds
+  // (phone locks, screen off, app switcher, etc.). Resume on foreground.
+  // Without this, music plays with the phone locked — annoying for the
+  // player and a battery drain. Hooks both visibilitychange (universal)
+  // and Capacitor's App.appStateChange (more reliable in the wrapped
+  // Android WebView).
+  function setupVisibilityHandling() {
+    function pauseAudio() {
+      if (musicElement && !musicElement.paused) {
+        try { musicElement.pause(); } catch (e) {}
+      }
+      if (ctx && ctx.state === 'running' && ctx.suspend) {
+        ctx.suspend().catch(() => {});
+      }
+    }
+    function resumeAudio() {
+      if (ctx && ctx.state === 'suspended' && ctx.resume) {
+        ctx.resume().catch(() => {});
+      }
+      // Only auto-resume music if the player hasn't muted it and the
+      // playlist has started before.
+      if (musicElement && !musicMuted && musicStarted) {
+        musicElement.play().catch(() => {});
+      }
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) pauseAudio();
+      else resumeAudio();
+    });
+
+    // Capacitor App plugin backup signal — fires on native lifecycle
+    // events the WebView may not catch as visibilitychange.
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+      try {
+        window.Capacitor.Plugins.App.addListener('appStateChange', (state) => {
+          if (state && state.isActive) resumeAudio();
+          else pauseAudio();
+        });
+      } catch (e) {
+        console.warn('[sound] App.appStateChange listener failed:', e);
+      }
+    }
   }
 
   function ensureContext() {
