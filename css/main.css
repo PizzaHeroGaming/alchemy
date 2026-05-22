@@ -420,6 +420,38 @@ button.danger:hover { background: rgba(196,49,74,0.15); }
 .credits { text-align: center; }
 .credits .phg { color: var(--gold-bright); font-family: 'Cinzel', serif; letter-spacing: 0.08em; }
 .credits-dim { color: var(--ink-mute); font-size: 13px; font-style: italic; }
+/* Sub-section credits: Music attribution and Tester thanks. Slightly
+   smaller and tighter than the main credits block so they read as
+   acknowledgments rather than headline brand statements. */
+.credits-music,
+.credits-thanks {
+  font-size: 13px;
+  margin: 16px auto 0;
+  max-width: 420px;
+  line-height: 1.5;
+}
+.credits-thanks {
+  font-style: italic;
+  color: var(--parchment-dim);
+}
+.credits-label {
+  display: inline-block;
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+.credits-music a {
+  color: var(--gold-bright);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--gold);
+}
+.credits-music a:hover {
+  color: var(--parchment);
+  border-bottom-color: var(--parchment);
+}
 .credits-mark {
   text-align: center;
   margin: 18px 0 0 !important;

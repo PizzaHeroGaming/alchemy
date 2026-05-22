@@ -1,10 +1,13 @@
-// Procedural sound effects. All synthesised on the fly with Web Audio so
-// the game ships zero audio assets. Sounds are short (<2s), tuned for the
-// dark-alchemist atmosphere — chimes, hisses, swells, low thrums.
+// Audio. Most cues are synthesised on the fly with Web Audio so the
+// game ships almost zero audio assets — the only files in
+// assets/audio/ are signature stings from licensed sources (Kevin
+// MacLeod's "Discovery Hit" for rank-up, future ambient music, etc.)
+// where the procedural version isn't good enough.
 //
-// Mute preference persists in localStorage. The AudioContext is created
-// lazily on the first user interaction so we don't trip browser autoplay
-// policies.
+// Mute + volume preferences persist in localStorage. The AudioContext
+// is created lazily on the first user interaction so we don't trip
+// browser autoplay policies; stings are fetched + decoded on the same
+// first-gesture event.
 (function (global) {
   'use strict';
 
@@ -16,6 +19,70 @@
   let muted = false;
   let volume = 0.5;
 
+  // ---- Pre-recorded sting buffers ---------------------------------------
+  // Loaded once after the first user gesture (when the AudioContext goes
+  // live). Stored by short name so callers don't carry URLs around.
+  const stingBuffers = new Map();   // name -> AudioBuffer
+  const STING_SOURCES = {
+    'rank-up': 'assets/audio/discovery-hit.mp3',
+  };
+
+  async function loadSting(name, url) {
+    if (!ctx) return;
+    if (stingBuffers.has(name)) return;
+    try {
+      const res = await fetch(url, { cache: 'force-cache' });
+      const ab  = await res.arrayBuffer();
+      const buf = await new Promise((resolve, reject) =>
+        ctx.decodeAudioData(ab, resolve, reject)
+      );
+      stingBuffers.set(name, buf);
+    } catch (e) {
+      // Silent — procedural fallbacks handle the absence.
+      console.warn('[sound] sting load failed for "' + name + '":', e);
+    }
+  }
+
+  function preloadStings() {
+    for (const name in STING_SOURCES) loadSting(name, STING_SOURCES[name]);
+  }
+
+  function playSting(name) {
+    if (!canPlay()) return false;
+    const buf = stingBuffers.get(name);
+    if (!buf) return false;
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(masterGain);
+    src.start(ctx.currentTime);
+    return true;
+  }
+
+  // ---- Background music slot (scaffolded, no track loaded yet) ----------
+  // When an ambient track lands, set MUSIC_TRACK_URL and the music will
+  // start on the first user gesture. The audio routes through musicGain
+  // so it can be ducked independently from the SFX bus later if desired.
+  let MUSIC_TRACK_URL = null;       // e.g. 'assets/audio/ambient.ogg'
+  let musicElement = null;
+  let musicSource  = null;
+  let musicGain    = null;
+
+  function ensureMusicStarted() {
+    if (!MUSIC_TRACK_URL || musicElement || !ctx) return;
+    try {
+      musicElement = new Audio(MUSIC_TRACK_URL);
+      musicElement.loop = true;
+      musicElement.preload = 'auto';
+      musicGain = ctx.createGain();
+      musicGain.gain.value = 0.55;   // tuned conservatively under SFX
+      musicSource = ctx.createMediaElementSource(musicElement);
+      musicSource.connect(musicGain).connect(masterGain);
+      musicElement.play().catch(() => { /* autoplay blocked — ok */ });
+    } catch (e) {
+      console.warn('[sound] music init failed:', e);
+    }
+  }
+
   function init() {
     try { muted  = localStorage.getItem(KEY_MUTED)  === '1'; } catch (e) {}
     try {
@@ -26,8 +93,12 @@
     // Resume audio context on first user gesture (browsers require this).
     // iOS Safari has historically been picky about *which* event types
     // qualify, so we listen to several and run from the first that fires.
+    // After the context is alive, kick off sting preloading + background
+    // music (if a track is configured).
     const arm = () => {
       ensureContext();
+      preloadStings();
+      ensureMusicStarted();
       document.removeEventListener('pointerdown', arm, true);
       document.removeEventListener('touchstart',  arm, true);
       document.removeEventListener('keydown',     arm, true);
@@ -217,8 +288,14 @@
     sighOsc.stop(sighStart + 0.82);
   }
 
-  // Rank up — celestial swell, big chord.
+  // Rank up — Kevin MacLeod's "Discovery Hit" sting (CC-BY; credits in
+  // the About modal). Falls back to a procedural C-major swell if the
+  // MP3 hasn't finished loading yet (e.g. rapid first-session rank-up
+  // before the network fetch completed) so the moment always has audio.
   function rankUp() {
+    if (playSting('rank-up')) return;
+
+    // Procedural fallback — original celestial swell.
     if (!canPlay()) return;
     const now = ctx.currentTime;
     const chord = [261.63, 329.63, 392.00, 523.25];   // C major
