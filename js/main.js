@@ -1,4 +1,10 @@
 // Bootstrap: load embedded data, hydrate state, mount UI.
+
+// Single source of truth for the build version. Surfaced in the About
+// modal so testers can verify they're on the latest patch. BUMP THIS
+// on every release alongside android/app/build.gradle's versionName.
+window.ATHANOR_VERSION = '1.1.2';
+
 (function () {
   'use strict';
 
@@ -217,6 +223,11 @@
     const modal = document.getElementById('about-modal');
     const openBtn = document.getElementById('btn-about');
     if (!modal || !openBtn) return;
+    // Populate the version line from the global constant so testers can
+    // verify which patch they're on. Single source of truth at the top
+    // of this file — change it there for every release.
+    const versionEl = document.getElementById('about-version');
+    if (versionEl) versionEl.textContent = 'v' + (window.ATHANOR_VERSION || '?');
     openBtn.addEventListener('click', () => modal.classList.remove('hidden'));
     modal.addEventListener('click', (e) => {
       if (e.target.dataset.close !== undefined) modal.classList.add('hidden');

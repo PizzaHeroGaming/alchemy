@@ -26,27 +26,45 @@
     contentEl = document.getElementById('hint-content');
     if (!buttonEl || !modalEl) return;
 
-    // Hide the Hint button unless ALL of:
-    //   1. window.GameAds module is loaded (ads.js ran).
-    //   2. isMobile() returns true (touch + UA/narrow).
-    //   3. adsEnabled() returns true (Capacitor or AndroidAds present).
-    // Diagnostic logging surfaces in Logcat via Chrome remote debugging
-    // when something goes wrong on a real device.
-    const checks = {
-      gameAds:    !!window.GameAds,
-      isMobile:   !!(window.GameAds && GameAds.isMobile()),
-      adsEnabled: !!(window.GameAds && GameAds.adsEnabled()),
-      capacitor:  !!window.Capacitor,
-      androidAds: !!window.AndroidAds,
-    };
-    console.log('[Hints] init checks:', checks);
-    if (!checks.gameAds || !checks.isMobile || !checks.adsEnabled) {
-      console.log('[Hints] button hidden — failed gate');
-      buttonEl.classList.add('hidden');
+    // Start hidden. Poll for Capacitor's window.AndroidAds / window.Capacitor
+    // to appear — these get injected by the native shell with timing that
+    // races our scripts. A simple load-time check misses the bridge if it
+    // arrives a few ms after our IIFE runs. Polling at 200ms intervals for
+    // up to ~3s catches every realistic race.
+    buttonEl.classList.add('hidden');
+
+    if (!window.GameAds) {
+      console.log('[Hints] GameAds module missing — button stays hidden');
       return;
     }
-    console.log('[Hints] button visible');
+    if (!GameAds.isMobile()) {
+      console.log('[Hints] not a mobile device — button stays hidden');
+      return;
+    }
 
+    let attempts = 0;
+    const MAX_ATTEMPTS = 15;   // 15 * 200ms = 3s total wait
+    const poll = setInterval(() => {
+      attempts++;
+      if (GameAds.adsEnabled()) {
+        clearInterval(poll);
+        console.log('[Hints] bridge ready at attempt', attempts,
+                    '— revealing button',
+                    { capacitor: !!window.Capacitor, androidAds: !!window.AndroidAds });
+        buttonEl.classList.remove('hidden');
+        wireUpHandlers();
+        return;
+      }
+      if (attempts >= MAX_ATTEMPTS) {
+        clearInterval(poll);
+        console.log('[Hints] gave up polling for bridge after',
+                    MAX_ATTEMPTS, 'attempts — button stays hidden',
+                    { capacitor: !!window.Capacitor, androidAds: !!window.AndroidAds });
+      }
+    }, 200);
+  }
+
+  function wireUpHandlers() {
     buttonEl.addEventListener('click', openModal);
     modalEl.addEventListener('click', (e) => {
       if (e.target.dataset.close !== undefined) { close(); return; }
