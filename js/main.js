@@ -3,7 +3,7 @@
 // Single source of truth for the build version. Surfaced in the About
 // modal so testers can verify they're on the latest patch. BUMP THIS
 // on every release alongside android/app/build.gradle's versionName.
-window.ATHANOR_VERSION = '1.2.0';
+window.ATHANOR_VERSION = '1.2.2';
 
 (function () {
   'use strict';

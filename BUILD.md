@@ -27,6 +27,33 @@ After `npx cap add android` finishes:
 4. Edit `android/app/build.gradle` per
    `android-templates/build.gradle.patch.md`
 
+## App icon + splash screens
+
+Capacitor scaffolds default-green launcher icons and a default splash. To
+replace them with Athanor's alembic across every density bucket, the
+`@capacitor/assets` tool reads a single source PNG and generates everything.
+
+`assets/icon.png` is the canonical source (1024×1024, copy of
+`assets/icons/icon-1024.png`). To regenerate after a fresh
+`npx cap add android`:
+
+```powershell
+npm run icons         # equivalent: npx @capacitor/assets generate --android
+```
+
+That writes ~74 files to `android/app/src/main/res/`:
+- `mipmap-*/ic_launcher.png` (legacy launcher icons, every density)
+- `mipmap-*/ic_launcher_round.png` (round-mask variants)
+- `mipmap-*/ic_launcher_foreground.png` (Android 8+ adaptive foreground layer)
+- `mipmap-*/ic_launcher_background.png` (adaptive background layer)
+- `mipmap-anydpi-v26/ic_launcher.xml` (adaptive icon spec)
+- `drawable-{port,land}-{ldpi,mdpi,hdpi,xhdpi,xxhdpi,xxxhdpi}/splash.png`
+- `drawable-night-*` / `drawable-{port,land}-night-*` (dark mode splash)
+
+If you want a different foreground vs. background (cleaner adaptive
+clipping), drop `assets/icon-foreground.png` and `assets/icon-background.png`
+alongside `assets/icon.png` and rerun `npm run icons`.
+
 ## Required SDK / AGP / Gradle versions
 
 Capacitor's scaffolding ships with older defaults. Play Console now requires

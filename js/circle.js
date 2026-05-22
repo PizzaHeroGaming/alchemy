@@ -24,7 +24,7 @@
     channelStaggerMs:     90,
     channelBaseMs:      1100,
     successHoldMs:      3800,
-    failureHoldMs:      1800,
+    failureHoldMs:      1200,
     sigilFlashMs:       1500,
     burstLifeMs:        1800,
     shockLifeBaseMs:    1600,
