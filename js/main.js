@@ -3,7 +3,7 @@
 // Single source of truth for the build version. Surfaced in the About
 // modal so testers can verify they're on the latest patch. BUMP THIS
 // on every release alongside android/app/build.gradle's versionName.
-window.ATHANOR_VERSION = '1.2.4';
+window.ATHANOR_VERSION = '1.2.5';
 
 (function () {
   'use strict';
@@ -197,25 +197,53 @@ window.ATHANOR_VERSION = '1.2.4';
   // signal a layout change. matchMedia('(orientation: portrait)')
   // covers what the OS-level rotation event misses.
   function initRotatePrompt() {
+    let pendingTimer = null;
+
     function update() {
-      // Treat 'phone-sized + portrait' as 'show the prompt'. The width
-      // ceiling keeps tablets and desktops from ever seeing it.
+      // Don't update while the WebView is backgrounded. Reading
+      // dimensions when hidden can return stale or transitional values
+      // — for example when an AdMob rewarded ad opens its own portrait
+      // Activity on top of us, then dismisses. Wait for the visible
+      // state to settle before deciding.
+      if (document.hidden) return;
       const w = window.innerWidth;
       const h = window.innerHeight;
       const isPortraitPhone = w <= 900 && h > w;
       document.body.classList.toggle('show-rotate-prompt', isPortraitPhone);
     }
+
+    // Coalesce rapid events into a single update. When a delay is
+    // supplied we wait that long before checking — useful for
+    // transitions where the WebView's layout takes a frame or two to
+    // settle (returning from a rewarded ad, app switch, screen
+    // unlock).
+    function scheduleUpdate(delay) {
+      if (pendingTimer) clearTimeout(pendingTimer);
+      pendingTimer = setTimeout(() => {
+        pendingTimer = null;
+        update();
+      }, delay || 0);
+    }
+
     update();
-    window.addEventListener('resize',            update);
-    window.addEventListener('orientationchange', update);
-    window.addEventListener('focus',             update);
-    document.addEventListener('visibilitychange', update);
+    window.addEventListener('resize',            () => scheduleUpdate(0));
+    window.addEventListener('orientationchange', () => scheduleUpdate(0));
+    window.addEventListener('focus',             () => scheduleUpdate(0));
+    // Visibility transitions: when becoming visible again (e.g. after a
+    // rewarded ad's Activity closes and our WebView regains foreground),
+    // dimensions can briefly read as portrait during the layout
+    // transition. Defer the check to let things settle, otherwise the
+    // rotate-prompt flashes for a frame.
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) return;
+      scheduleUpdate(600);
+    });
     // matchMedia fires on the OS-level orientation change even when iOS
     // Safari delays its resize/orientationchange events.
     try {
       const mq = window.matchMedia('(orientation: portrait)');
-      if (mq && mq.addEventListener) mq.addEventListener('change', update);
-      else if (mq && mq.addListener) mq.addListener(update);  // older Safari
+      if (mq && mq.addEventListener) mq.addEventListener('change', () => scheduleUpdate(0));
+      else if (mq && mq.addListener) mq.addListener(() => scheduleUpdate(0));  // older Safari
     } catch (e) { /* ignore — matchMedia missing */ }
   }
 
